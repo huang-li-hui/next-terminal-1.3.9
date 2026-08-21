@@ -143,6 +143,10 @@ func (service sessionService) DisDBSess(sessionId string, code int, reason strin
 		c := service.Context(tx)
 		s, err := repository.SessionRepository.FindById(c, sessionId)
 		if err != nil {
+			// 会话记录可能已被清理，其余错误记录日志便于排查
+			if !errors.Is(err, gorm.ErrRecordNotFound) {
+				log.Error("查询会话失败", log.String("sessionId", sessionId), log.String("err", err.Error()))
+			}
 			return err
 		}
 

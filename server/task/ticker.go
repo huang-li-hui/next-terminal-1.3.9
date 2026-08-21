@@ -86,6 +86,10 @@ func systemLoad() error {
 
 	now := time.Now().Format("15:04:05")
 
+	// 以下开始写入共享的 SystemLoad，与 /overview/ps 的读取互斥
+	stat.Mu.Lock()
+	defer stat.Mu.Unlock()
+
 	usage, err := disk.Usage("/")
 	if err != nil {
 		return err

@@ -24,21 +24,21 @@ type Session struct {
 }
 
 func (s *Session) WriteMessage(msg dto.Message) error {
+	defer s.mutex.Unlock()
+	s.mutex.Lock()
 	if s.WebSocket == nil {
 		return nil
 	}
-	defer s.mutex.Unlock()
-	s.mutex.Lock()
 	message := []byte(msg.ToString())
 	return s.WebSocket.WriteMessage(websocket.TextMessage, message)
 }
 
 func (s *Session) WriteString(str string) error {
+	defer s.mutex.Unlock()
+	s.mutex.Lock()
 	if s.WebSocket == nil {
 		return nil
 	}
-	defer s.mutex.Unlock()
-	s.mutex.Lock()
 	message := []byte(str)
 	return s.WebSocket.WriteMessage(websocket.TextMessage, message)
 }

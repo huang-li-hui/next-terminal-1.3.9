@@ -58,7 +58,10 @@ func Auth(next echo.HandlerFunc) echo.HandlerFunc {
 			return api.Fail(c, 401, "您的登录信息已失效，请重新登录后再试。")
 		}
 
-		authorization := v.(dto.Authorization)
+		authorization, ok := v.(dto.Authorization)
+		if !ok {
+			return api.Fail(c, 401, "您的登录信息已失效，请重新登录后再试。")
+		}
 
 		if strings.EqualFold(nt.LoginToken, authorization.Type) {
 			if authorization.Remember {
@@ -91,10 +94,10 @@ func Auth(next echo.HandlerFunc) echo.HandlerFunc {
 			return next(c)
 		}
 		var roles []string
-		v, ok := cache.UserRolesManager.Get(account.ID)
-		if ok {
-			roles = v.([]string)
-			if len(roles) == 0 {
+		rolesVal, rolesOk := cache.UserRolesManager.Get(account.ID)
+		if rolesOk {
+			roles, rolesOk = rolesVal.([]string)
+			if !rolesOk || len(roles) == 0 {
 				roles, _ = service.RoleService.GetRolesByUserId(account.ID)
 				cache.UserRolesManager.SetDefault(account.ID, roles)
 			}

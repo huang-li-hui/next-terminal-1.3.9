@@ -4,10 +4,12 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"net/url"
 	"next-terminal/server/common/guacamole"
 	"next-terminal/server/common/nt"
 	"path"
 	"strconv"
+	"strings"
 
 	"next-terminal/server/config"
 	"next-terminal/server/global/session"
@@ -33,13 +35,74 @@ const (
 	NewSshClientError        int = 806
 )
 
+// checkOrigin 验证WebSocket连接的Origin是否合法
+// 防止跨站WebSocket劫持(CSWSH)攻击
+func checkOrigin(r *http.Request) bool {
+	origin := r.Header.Get("Origin")
+	if origin == "" {
+		// 如果没有Origin头，可能是非浏览器客户端，允许通过
+		return true
+	}
+
+	originURL, err := url.Parse(origin)
+	if err != nil {
+		return false
+	}
+
+	// 获取请求的Host
+	host := r.Host
+
+	// 检查Origin的Host是否与请求的Host匹配
+	// 允许相同Host的请求
+	if originURL.Host == host {
+		return true
+	}
+
+	// 检查配置中是否允许的域名
+	// 这里可以扩展为从配置文件读取允许的域名列表
+	allowedHosts := getAllowedHosts()
+	for _, allowedHost := range allowedHosts {
+		if originURL.Host == allowedHost {
+			return true
+		}
+		// 支持通配符域名检查
+		if strings.HasPrefix(allowedHost, "*.") {
+			domain := allowedHost[2:]
+			if strings.HasSuffix(originURL.Host, domain) {
+				return true
+			}
+		}
+	}
+
+	return false
+}
+
+// getAllowedHosts 获取允许的域名列表
+func getAllowedHosts() []string {
+	// 从配置中获取服务器地址
+	serverAddr := config.GlobalCfg.Server.Addr
+	// 默认允许localhost和配置的服务器地址
+	hosts := []string{
+		"localhost",
+		"127.0.0.1",
+	}
+
+	// 解析服务器地址
+	if serverAddr != "" {
+		parts := strings.Split(serverAddr, ":")
+		if len(parts) > 0 && parts[0] != "0.0.0.0" && parts[0] != "" {
+			hosts = append(hosts, parts[0])
+		}
+	}
+
+	return hosts
+}
+
 var UpGrader = websocket.Upgrader{
 	ReadBufferSize:  4096,
 	WriteBufferSize: 4096,
-	CheckOrigin: func(r *http.Request) bool {
-		return true
-	},
-	Subprotocols: []string{"guacamole"},
+	CheckOrigin:     checkOrigin,
+	Subprotocols:    []string{"guacamole"},
 }
 
 type GuacamoleApi struct {

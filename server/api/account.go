@@ -32,10 +32,13 @@ func (api AccountApi) LoginEndpoint(c echo.Context) error {
 	// 存储登录失败次数信息
 	loginFailCountKey := c.RealIP() + loginAccount.Username
 	v, ok := cache.LoginFailedKeyManager.Get(loginFailCountKey)
-	if !ok {
-		v = 1
+	count := 0
+	if ok {
+		count, ok = v.(int)
+		if !ok {
+			count = 0
+		}
 	}
-	count := v.(int)
 	if count >= 5 {
 		return Fail(c, -1, "登录失败次数过多，请等待5分钟后再试")
 	}
@@ -90,6 +93,8 @@ func (api AccountApi) LoginEndpoint(c echo.Context) error {
 	if err != nil {
 		return err
 	}
+	// 登录成功后清除失败计数，避免历史失败累计导致误锁定
+	cache.LoginFailedKeyManager.Delete(loginFailCountKey)
 	// 保存登录日志
 	if err := service.UserService.SaveLoginLog(c.RealIP(), c.Request().UserAgent(), loginAccount.Username, true, loginAccount.Remember, token, ""); err != nil {
 		return err

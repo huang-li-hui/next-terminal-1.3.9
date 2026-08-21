@@ -64,7 +64,12 @@ func (r *TermHandler) readFormTunnel() {
 				return
 			}
 			if size > 0 {
-				r.dataChan <- rn
+				// 带 ctx 的发送，避免 websocket 写端退出后 dataChan 无人消费导致协程泄漏
+				select {
+				case r.dataChan <- rn:
+				case <-r.ctx.Done():
+					return
+				}
 			}
 		}
 	}

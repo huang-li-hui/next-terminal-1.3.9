@@ -9,6 +9,21 @@ import (
 	"golang.org/x/net/proxy"
 )
 
+// HostKeyVerificationMode 主机密钥验证模式
+type HostKeyVerificationMode int
+
+const (
+	// HostKeyVerificationAuto 自动接受新主机密钥（首次连接信任）
+	HostKeyVerificationAuto HostKeyVerificationMode = iota
+	// HostKeyVerificationStrict 只接受已知主机
+	HostKeyVerificationStrict
+	// HostKeyVerificationInsecure 不验证主机密钥（不安全，仅用于兼容旧版本）
+	HostKeyVerificationInsecure
+)
+
+// DefaultHostKeyVerificationMode 默认使用自动模式
+var DefaultHostKeyVerificationMode = HostKeyVerificationAuto
+
 func NewSshClient(ip string, port int, username, password, privateKey, passphrase string) (*ssh.Client, error) {
 	var authMethod ssh.AuthMethod
 	if username == "-" || username == "" {
@@ -43,11 +58,22 @@ func NewSshClient(ip string, port int, username, password, privateKey, passphras
 		authMethod = ssh.Password(password)
 	}
 
+	// 根据验证模式选择主机密钥回调
+	var hostKeyCallback ssh.HostKeyCallback
+	switch DefaultHostKeyVerificationMode {
+	case HostKeyVerificationStrict:
+		hostKeyCallback = StrictHostKeyCallback
+	case HostKeyVerificationInsecure:
+		hostKeyCallback = ssh.InsecureIgnoreHostKey()
+	default:
+		hostKeyCallback = HostKeyCallback
+	}
+
 	config := &ssh.ClientConfig{
 		Timeout:         3 * time.Second,
 		User:            username,
 		Auth:            []ssh.AuthMethod{authMethod},
-		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
+		HostKeyCallback: hostKeyCallback,
 	}
 
 	addr := fmt.Sprintf("%s:%d", ip, port)
@@ -88,11 +114,22 @@ func NewSshClientUseSocks(ip string, port int, username, password, privateKey, p
 		authMethod = ssh.Password(password)
 	}
 
+	// 根据验证模式选择主机密钥回调
+	var hostKeyCallback ssh.HostKeyCallback
+	switch DefaultHostKeyVerificationMode {
+	case HostKeyVerificationStrict:
+		hostKeyCallback = StrictHostKeyCallback
+	case HostKeyVerificationInsecure:
+		hostKeyCallback = ssh.InsecureIgnoreHostKey()
+	default:
+		hostKeyCallback = HostKeyCallback
+	}
+
 	config := &ssh.ClientConfig{
 		Timeout:         3 * time.Second,
 		User:            username,
 		Auth:            []ssh.AuthMethod{authMethod},
-		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
+		HostKeyCallback: hostKeyCallback,
 	}
 
 	socksProxyAddr := fmt.Sprintf("%s:%s", socksProxyHost, socksProxyPort)

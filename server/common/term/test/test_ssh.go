@@ -5,6 +5,8 @@ import (
 	"io"
 	"next-terminal/server/log"
 	"os"
+
+	"go.uber.org/zap"
 	"time"
 
 	"golang.org/x/crypto/ssh"
@@ -30,7 +32,7 @@ func main() {
 
 	client, err := ssh.Dial("tcp", "172.16.101.32:22", sshConfig)
 	if err != nil {
-		log.Error(err)
+		log.Error("ssh dial failed", zap.Error(err))
 	}
 	defer client.Close()
 
@@ -87,9 +89,9 @@ func (t *SSHTerminal) interactiveSession() error {
 
 	defer func() {
 		if t.exitMsg == "" {
-			log.Info(os.Stdout, "the connection was closed on the remote side on ", time.Now().Format(time.RFC822))
+			log.Info("the connection was closed on the remote side on " + time.Now().Format(time.RFC822))
 		} else {
-			log.Info(os.Stdout, t.exitMsg)
+			log.Info("session exited: " + t.exitMsg)
 		}
 	}()
 

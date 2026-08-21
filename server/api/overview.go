@@ -225,5 +225,6 @@ func (api OverviewApi) OverviewPS(c echo.Context) error {
 	//	},
 	//})
 
-	return Success(c, stat.SystemLoad)
+	// 返回深拷贝，避免与后台 ticker 写入 SystemLoad 产生数据竞争
+	return Success(c, stat.GetSystemLoad())
 }

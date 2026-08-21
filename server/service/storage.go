@@ -9,8 +9,10 @@ import (
 	"io/ioutil"
 	"mime/multipart"
 	"net/http"
+	"net/url"
 	"os"
 	"path"
+	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -27,6 +29,37 @@ import (
 var StorageService = new(storageService)
 
 type storageService struct {
+}
+
+// validatePath 验证路径参数是否安全
+func validatePath(pathParam string) error {
+	// 检查原始路径
+	if strings.Contains(pathParam, "..") {
+		return errors.New("非法请求：路径不能包含父目录引用")
+	}
+
+	// 检查URL编码后的路径
+	decoded, err := url.QueryUnescape(pathParam)
+	if err == nil && strings.Contains(decoded, "..") {
+		return errors.New("非法请求：路径不能包含父目录引用")
+	}
+
+	// 存储路径均相对于存储根目录，前端在根目录时会传 "/"，
+	// 因此去掉开头的 "/" 后再校验，既兼容根目录操作又避免绝对路径逃逸
+	pathParam = strings.TrimLeft(pathParam, "/")
+
+	// 检查是否为绝对路径（Windows 盘符等）
+	if filepath.IsAbs(pathParam) {
+		return errors.New("非法请求：不能使用绝对路径")
+	}
+
+	// 检查路径规范化后是否仍然安全
+	cleanPath := filepath.Clean(pathParam)
+	if strings.HasPrefix(cleanPath, "..") {
+		return errors.New("非法请求：路径遍历检测")
+	}
+
+	return nil
 }
 
 func (service storageService) InitStorages() error {
@@ -199,11 +232,11 @@ func (service storageService) StorageUpload(c echo.Context, file *multipart.File
 	remoteDir := c.QueryParam("dir")
 	remoteFile := path.Join(remoteDir, filename)
 
-	if strings.Contains(remoteDir, "../") {
-		return errors.New("非法请求 :(")
+	if err := validatePath(remoteDir); err != nil {
+		return err
 	}
-	if strings.Contains(remoteFile, "../") {
-		return errors.New("非法请求 :(")
+	if err := validatePath(remoteFile); err != nil {
+		return err
 	}
 
 	// 判断文件夹不存在时自动创建
@@ -229,8 +262,8 @@ func (service storageService) StorageUpload(c echo.Context, file *multipart.File
 
 func (service storageService) StorageEdit(file string, fileContent string, storageId string) error {
 	drivePath := service.GetBaseDrivePath()
-	if strings.Contains(file, "../") {
-		return errors.New("非法请求 :(")
+	if err := validatePath(file); err != nil {
+		return err
 	}
 	realFilePath := path.Join(path.Join(drivePath, storageId), file)
 	dstFile, err := os.OpenFile(realFilePath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0666)
@@ -250,8 +283,8 @@ func (service storageService) StorageEdit(file string, fileContent string, stora
 
 func (service storageService) StorageDownload(c echo.Context, file, storageId string) error {
 	drivePath := service.GetBaseDrivePath()
-	if strings.Contains(file, "../") {
-		return errors.New("非法请求 :(")
+	if err := validatePath(file); err != nil {
+		return err
 	}
 	// 获取带后缀的文件名称
 	filenameWithSuffix := path.Base(file)
@@ -266,8 +299,8 @@ func (service storageService) StorageDownload(c echo.Context, file, storageId st
 
 func (service storageService) StorageLs(remoteDir, storageId string) (error, []File) {
 	drivePath := service.GetBaseDrivePath()
-	if strings.Contains(remoteDir, "../") {
-		return errors.New("非法请求 :("), nil
+	if err := validatePath(remoteDir); err != nil {
+		return err, nil
 	}
 	files, err := service.Ls(path.Join(drivePath, storageId), remoteDir)
 	if err != nil {
@@ -278,8 +311,8 @@ func (service storageService) StorageLs(remoteDir, storageId string) (error, []F
 
 func (service storageService) StorageMkDir(remoteDir, storageId string) error {
 	drivePath := service.GetBaseDrivePath()
-	if strings.Contains(remoteDir, "../") {
-		return errors.New("非法请求 :(")
+	if err := validatePath(remoteDir); err != nil {
+		return err
 	}
 	if err := os.MkdirAll(path.Join(path.Join(drivePath, storageId), remoteDir), os.ModePerm); err != nil {
 		return err
@@ -289,8 +322,8 @@ func (service storageService) StorageMkDir(remoteDir, storageId string) error {
 
 func (service storageService) StorageRm(file, storageId string) error {
 	drivePath := service.GetBaseDrivePath()
-	if strings.Contains(file, "../") {
-		return errors.New("非法请求 :(")
+	if err := validatePath(file); err != nil {
+		return err
 	}
 	if err := os.RemoveAll(path.Join(path.Join(drivePath, storageId), file)); err != nil {
 		return err
@@ -300,11 +333,11 @@ func (service storageService) StorageRm(file, storageId string) error {
 
 func (service storageService) StorageRename(oldName, newName, storageId string) error {
 	drivePath := service.GetBaseDrivePath()
-	if strings.Contains(oldName, "../") {
-		return errors.New("非法请求 :(")
+	if err := validatePath(oldName); err != nil {
+		return err
 	}
-	if strings.Contains(newName, "../") {
-		return errors.New("非法请求 :(")
+	if err := validatePath(newName); err != nil {
+		return err
 	}
 	if err := os.Rename(path.Join(path.Join(drivePath, storageId), oldName), path.Join(path.Join(drivePath, storageId), newName)); err != nil {
 		return err

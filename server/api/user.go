@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"next-terminal/server/common/maps"
+	"next-terminal/server/utils"
 	"strconv"
 	"strings"
 
@@ -20,7 +21,14 @@ func (userApi UserApi) CreateEndpoint(c echo.Context) (err error) {
 		return err
 	}
 
-	if len(item.Password) > 100 {
+	// 验证密码复杂度
+	if item.Password != "" {
+		if err := utils.ValidatePassword(item.Password); err != nil {
+			return Fail(c, -1, "密码不符合要求: "+err.Error())
+		}
+	}
+
+	if len(item.Password) > 128 {
 		return Fail(c, -1, "您输入的密码过长")
 	}
 

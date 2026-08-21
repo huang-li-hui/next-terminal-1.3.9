@@ -28,3 +28,4 @@ web/build
 /server/resource/*.html
 /server/resource/*.json
 /server/resource/*.ico
+.gitnexus

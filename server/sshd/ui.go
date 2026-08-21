@@ -320,7 +320,6 @@ func (gui Gui) totpUI(sess ssh.Session, user model.User, remoteAddr string, user
 		}
 		if !common.Validate(result, user.TOTPSecret) {
 			count++
-			println(count)
 			cache.LoginFailedKeyManager.Set(loginFailCountKey, count, cache.LoginLockExpiration)
 			// 保存登录日志
 			_ = service.UserService.SaveLoginLog(remoteAddr, "terminal", username, false, false, "", "双因素认证授权码不正确")

@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"next-terminal/server/common/nt"
 	"path"
 	"strconv"
@@ -242,15 +243,14 @@ func (api WebTerminalApi) SshMonitorEndpoint(c echo.Context) error {
 func (api WebTerminalApi) permissionCheck(c echo.Context, assetId string) error {
 	user, _ := GetCurrentAccount(c)
 	if nt.TypeUser == user.Type {
-		// 检测是否有访问权限 TODO
-		//assetIds, err := repository.ResourceSharerRepository.FindAssetIdsByUserId(context.TODO(), user.ID)
-		//if err != nil {
-		//	return err
-		//}
-		//
-		//if !utils.Contains(assetIds, assetId) {
-		//	return errors.New("您没有权限访问此资产")
-		//}
+		// 检测是否有访问权限
+		authorised, err := service.AuthorisedService.GetAuthorised(user.ID, assetId)
+		if err != nil {
+			return errors.New("获取授权信息失败：" + err.Error())
+		}
+		if authorised == nil {
+			return errors.New("您没有权限访问此资产")
+		}
 	}
 	return nil
 }

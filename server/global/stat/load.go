@@ -1,5 +1,7 @@
 package stat
 
+import "sync"
+
 type systemLoad struct {
 	LoadStat   *LoadStat  `json:"loadStat"`
 	Mem        *Mem       `json:"mem"`
@@ -72,6 +74,90 @@ type ioEntry struct {
 }
 
 var SystemLoad *systemLoad
+
+// Mu 保护 SystemLoad 的并发访问：
+// 后台 ticker 每5秒写入，/overview/ps 接口并发读取（JSON序列化）
+var Mu sync.RWMutex
+
+// GetSystemLoad 返回 SystemLoad 的深拷贝，供 HTTP 接口安全读取
+func GetSystemLoad() *systemLoad {
+	Mu.RLock()
+	defer Mu.RUnlock()
+
+	cp := &systemLoad{
+		Mem:     copyMem(SystemLoad.Mem),
+		Cpu:     copyCpu(SystemLoad.Cpu),
+		Disk:    copyDisk(SystemLoad.Disk),
+		MemStat: copyEntries(SystemLoad.MemStat),
+		CpuStat: copyEntries(SystemLoad.CpuStat),
+	}
+	if SystemLoad.LoadStat != nil {
+		ls := *SystemLoad.LoadStat
+		cp.LoadStat = &ls
+	}
+	cp.DiskIOStat = copyIOEntries(SystemLoad.DiskIOStat)
+	cp.NetIOStat = copyIOEntries(SystemLoad.NetIOStat)
+	return cp
+}
+
+func copyMem(m *Mem) *Mem {
+	if m == nil {
+		return nil
+	}
+	c := *m
+	return &c
+}
+
+func copyCpu(c *Cpu) *Cpu {
+	if c == nil {
+		return nil
+	}
+	cp := *c
+	cp.Info = make([]*CpuInfo, len(c.Info))
+	for i, v := range c.Info {
+		if v != nil {
+			info := *v
+			cp.Info[i] = &info
+		}
+	}
+	return &cp
+}
+
+func copyDisk(d *Disk) *Disk {
+	if d == nil {
+		return nil
+	}
+	c := *d
+	return &c
+}
+
+func copyEntries(in []*entry) []*entry {
+	if in == nil {
+		return nil
+	}
+	out := make([]*entry, len(in))
+	for i, v := range in {
+		if v != nil {
+			e := *v
+			out[i] = &e
+		}
+	}
+	return out
+}
+
+func copyIOEntries(in []*ioEntry) []*ioEntry {
+	if in == nil {
+		return nil
+	}
+	out := make([]*ioEntry, len(in))
+	for i, v := range in {
+		if v != nil {
+			e := *v
+			out[i] = &e
+		}
+	}
+	return out
+}
 
 func init() {
 	SystemLoad = &systemLoad{

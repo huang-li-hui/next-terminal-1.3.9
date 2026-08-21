@@ -184,6 +184,32 @@ func (s assetService) Create(ctx context.Context, m maps.Map) (*model.Asset, err
 		return nil, err
 	}
 
+	// 验证IP地址
+	if item.IP != "" {
+		if err := utils.ValidateIPAddressOrHost(item.IP); err != nil {
+			return nil, fmt.Errorf("IP地址验证失败: %w", err)
+		}
+	}
+
+	// 验证端口
+	if item.Port != 0 {
+		if err := utils.ValidatePort(item.Port); err != nil {
+			return nil, fmt.Errorf("端口验证失败: %w", err)
+		}
+	}
+
+	// 验证协议
+	validProtocols := map[string]bool{
+		"ssh":        true,
+		"rdp":        true,
+		"vnc":        true,
+		"telnet":     true,
+		"kubernetes": true,
+	}
+	if item.Protocol != "" && !validProtocols[item.Protocol] {
+		return nil, fmt.Errorf("不支持的协议: %s", item.Protocol)
+	}
+
 	item.ID = utils.UUID()
 	item.Created = common.NowJsonTime()
 	item.Active = true

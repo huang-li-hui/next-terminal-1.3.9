@@ -162,6 +162,10 @@ func SetupConfig() (*Config, error) {
 		},
 	}
 
+	// 加密密钥处理
+	// 注意：必须保持与历史版本一致的默认密钥和 md5 派生方式，
+	// 否则已有加密数据（资产凭据、授权密码等）在升级后将无法解密，
+	// 且随机默认密钥会导致重启后无法解密上次加密的数据
 	if config.EncryptionKey == "" {
 		config.EncryptionKey = "next-terminal"
 	}

@@ -1,6 +1,8 @@
 package service
 
 import (
+	"crypto/rand"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"next-terminal/server/common/nt"
@@ -28,6 +30,15 @@ type userService struct {
 	baseService
 }
 
+// generateRandomPassword 生成随机密码
+func generateRandomPassword(length int) (string, error) {
+	bytes := make([]byte, length)
+	if _, err := rand.Read(bytes); err != nil {
+		return "", err
+	}
+	return hex.EncodeToString(bytes)[:length], nil
+}
+
 func (service userService) InitUser() (err error) {
 
 	users, err := repository.UserRepository.FindAll(context.TODO())
@@ -36,7 +47,12 @@ func (service userService) InitUser() (err error) {
 	}
 
 	if len(users) == 0 {
-		initPassword := "admin"
+		// 生成随机初始密码，不再使用固定的 "admin"
+		initPassword, err := generateRandomPassword(12)
+		if err != nil {
+			return fmt.Errorf("生成初始密码失败: %v", err)
+		}
+
 		var pass []byte
 		if pass, err = utils.Encoder.Encode([]byte(initPassword)); err != nil {
 			return err
@@ -54,6 +70,14 @@ func (service userService) InitUser() (err error) {
 		if err := repository.UserRepository.Create(context.TODO(), &user); err != nil {
 			return err
 		}
+
+		// 打印初始密码信息
+		fmt.Println("\n" + strings.Repeat("=", 60))
+		fmt.Println("【重要】初始管理员账号信息：")
+		fmt.Println("  用户名: admin")
+		fmt.Printf("  密码: %s\n", initPassword)
+		fmt.Println("  请立即登录并修改默认密码！")
+		fmt.Println(strings.Repeat("=", 60) + "\n")
 
 	} else {
 		for i := range users {
@@ -264,12 +288,17 @@ func (service userService) CreateUser(user model.User) (err error) {
 		}
 
 		if user.Mail != "" {
-			subject := fmt.Sprintf("%s 注册通知", branding.Name)
+			subject := fmt.Sprintf("%s 账户开通通知", branding.Name)
 			text := fmt.Sprintf(`您好，%s。
-	管理员为你开通了账户。
-	账号：%s
-	密码：%s
-`, user.Username, user.Username, password)
+
+管理员为您开通了账户。
+
+账号：%s
+
+请使用初始密码登录系统，并在登录后立即修改密码。
+初始密码将由管理员另行通知您。
+
+为确保账户安全，请勿将此邮件转发给他人。`, user.Username, user.Username)
 			go MailService.SendMail(user.Mail, subject, text)
 		}
 		return nil
@@ -475,8 +504,15 @@ func (service userService) ChangePassword(ids []string, password string) error {
 			if user.Mail != "" {
 				subject := "密码修改通知"
 				text := fmt.Sprintf(`您好，%s。
-	管理员已将你的密码修改为：%s。
-`, user.Username, password)
+
+您的账户密码已被管理员修改。
+
+请使用新密码登录系统，并在登录后确认账户安全。
+新密码将由管理员另行通知您。
+
+如非本人操作，请立即联系管理员。
+
+为确保账户安全，请勿将此邮件转发给他人。`, user.Username)
 				go MailService.SendMail(user.Mail, subject, text)
 			}
 		}

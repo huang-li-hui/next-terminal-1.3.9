@@ -28,7 +28,7 @@ const handleResult = (result) => {
     if (result['code'] === 401) {
         window.location.href = '#/login';
         return false;
-    }if (result['code'] === 403) {
+    } else if (result['code'] === 403) {
         window.location.href = '#/permission-denied';
         return false;
     } else if (result['code'] === 100) {
@@ -49,15 +49,14 @@ const request = {
             axios.get(url, {headers: headers})
                 .then((response) => {
                     let contentType = response.headers['content-type'];
-                    if (contentType !== '' && contentType.includes('application/json')) {
+                    if (contentType && contentType.includes('application/json')) {
                         handleResult(response.data);
                     }
                     resolve(response.data);
                 })
                 .catch((error) => {
-                    if (!handleError(error)) {
-                        return;
-                    }
+                    handleError(error);
+                    // 无论何种错误都必须让 promise 落定，否则调用方 await 会永久挂起
                     reject(error);
                 });
         })
@@ -80,9 +79,8 @@ const request = {
                     resolve(response.data);
                 })
                 .catch((error) => {
-                    if (!handleError(error)) {
-                        return;
-                    }
+                    handleError(error);
+                    // 无论何种错误都必须让 promise 落定，否则调用方 await 会永久挂起
                     reject(error);
                 });
         })
@@ -99,9 +97,8 @@ const request = {
                     resolve(response.data);
                 })
                 .catch((error) => {
-                    if (!handleError(error)) {
-                        return;
-                    }
+                    handleError(error);
+                    // 无论何种错误都必须让 promise 落定，否则调用方 await 会永久挂起
                     reject(error);
                 });
         })
@@ -117,9 +114,8 @@ const request = {
                     resolve(response.data);
                 })
                 .catch((error) => {
-                    if (!handleError(error)) {
-                        return;
-                    }
+                    handleError(error);
+                    // 无论何种错误都必须让 promise 落定，否则调用方 await 会永久挂起
                     reject(error);
                 });
         })
@@ -135,9 +131,8 @@ const request = {
                     resolve(response.data);
                 })
                 .catch((error) => {
-                    if (!handleError(error)) {
-                        return;
-                    }
+                    handleError(error);
+                    // 无论何种错误都必须让 promise 落定，否则调用方 await 会永久挂起
                     reject(error);
                 });
         })

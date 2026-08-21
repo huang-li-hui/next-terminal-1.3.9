@@ -16,5 +16,6 @@ func (wc *WriteCounter) Write(p []byte) (n int, err error) {
 	data := fmt.Sprintf("%d㊥", wc.Total)
 	_, _ = wc.Resp.Write([]byte(data))
 	wc.Resp.Flush()
-	return n, nil
+	// 必须报告全部字节已写入，否则 io.TeeReader/io.Copy 会以 ErrShortWrite 中断上传
+	return len(p), nil
 }

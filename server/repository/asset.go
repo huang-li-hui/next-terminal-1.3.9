@@ -60,7 +60,7 @@ func (r assetRepository) Find(c context.Context, pageIndex, pageSize int, name, 
 
 	if len(port) > 0 {
 		db = db.Where("assets.port = ?", port)
-		dbCounter = dbCounter.Where("assets.port = ?", ip)
+		dbCounter = dbCounter.Where("assets.port = ?", port)
 	}
 
 	if len(protocol) > 0 {

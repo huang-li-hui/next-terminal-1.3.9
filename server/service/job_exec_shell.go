@@ -60,11 +60,15 @@ func (r ShellJob) executeShellByAssets(assets []model.Asset) {
 	}
 
 	msgChan := make(chan string)
+	var message = ""
+	spawned := 0
 	for i := range assets {
 		asset, err := AssetService.FindByIdAndDecrypt(context.TODO(), assets[i].ID)
 		if err != nil {
-			msgChan <- fmt.Sprintf("资产「%v」Shell执行失败，查询数据异常「%v」", assets[i].Name, err.Error())
-			return
+			// msgChan 是无缓冲的且消费方在下方循环中，此处直接发送会死锁，
+			// 记入 message 后继续处理其余资产
+			message += fmt.Sprintf("资产「%v」Shell执行失败，查询数据异常「%v」\n", assets[i].Name, err.Error())
+			continue
 		}
 
 		var (
@@ -79,8 +83,8 @@ func (r ShellJob) executeShellByAssets(assets []model.Asset) {
 		if asset.AccountType == "credential" {
 			credential, err := CredentialService.FindByIdAndDecrypt(context.TODO(), asset.CredentialId)
 			if err != nil {
-				msgChan <- fmt.Sprintf("资产「%v」Shell执行失败，查询授权凭证数据异常「%v」", assets[i].Name, err.Error())
-				return
+				message += fmt.Sprintf("资产「%v」Shell执行失败，查询授权凭证数据异常「%v」\n", assets[i].Name, err.Error())
+				continue
 			}
 
 			if credential.Type == nt.Custom {
@@ -93,6 +97,7 @@ func (r ShellJob) executeShellByAssets(assets []model.Asset) {
 			}
 		}
 
+		spawned++
 		go func() {
 			t1 := time.Now()
 			result, err := execute(metadataShell.Shell, asset.AccessGatewayId, ip, port, username, password, privateKey, passphrase)
@@ -114,8 +119,8 @@ func (r ShellJob) executeShellByAssets(assets []model.Asset) {
 		}()
 	}
 
-	var message = ""
-	for i := 0; i < len(assets); i++ {
+	// 等待所有已启动的执行协程返回结果（出错被跳过的资产在上面已计入 message）
+	for i := 0; i < spawned; i++ {
 		message += <-msgChan + "\n"
 	}
 
@@ -182,6 +187,9 @@ func ExecCommandBySSH(cmd, ip string, port int, username, password, privateKey, 
 	if err != nil {
 		return "", err
 	}
+	defer func() {
+		_ = sshClient.Close()
+	}()
 
 	session, err := sshClient.NewSession()
 	if err != nil {
