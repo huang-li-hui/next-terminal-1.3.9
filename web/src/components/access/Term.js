@@ -4,7 +4,7 @@ import {Terminal} from "xterm";
 import {FitAddon} from "xterm-addon-fit";
 import {getToken} from "../../utils/utils";
 import request from "../../common/request";
-import {Affix, Button, Drawer, Dropdown, Menu, message, Select, Space, Typography} from "antd";
+import {Affix, Button, Drawer, Dropdown, message, Select, Space, Typography} from "antd";
 import Message from "./Message";
 import qs from "qs";
 import {wsServer} from "../../common/env";
@@ -277,7 +277,7 @@ const Term = () => {
 
             <Draggable>
                 <Affix style={{position: 'absolute', top: 50, right: 100, zIndex: enterBtnZIndex}}>
-                    <Dropdown overlay={<Menu onClick={handleCmdMenuClick} items={cmdMenuItems}/>} trigger={['click']}
+                    <Dropdown menu={{onClick: handleCmdMenuClick, items: cmdMenuItems}} trigger={['click']}
                               placement="bottomLeft">
                         <Button icon={<CodeOutlined/>}/>
                     </Dropdown>
@@ -304,7 +304,7 @@ const Term = () => {
                     setEnterBtnZIndex(1001); // xterm.js 输入框的zIndex是1000，在弹出文件管理页面后要隐藏此按钮
                     focus();
                 }}
-                visible={fileSystemVisible}
+                open={fileSystemVisible}
             >
                 <FileSystem
                     storageId={session['id']}
@@ -328,7 +328,7 @@ const Term = () => {
 
                     focus();
                 }}
-                visible={statsVisible}
+                open={statsVisible}
                 extra={
                     <Space>
                         <div style={{width: 100}}>
@@ -346,7 +346,7 @@ const Term = () => {
                     </Space>
                 }
             >
-                <Stats sessionId={session['id']} visible={statsVisible} queryInterval={queryInterval}/>
+                <Stats sessionId={session['id']} open={statsVisible} queryInterval={queryInterval}/>
             </Drawer>
         </div>
     );

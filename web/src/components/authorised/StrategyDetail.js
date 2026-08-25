@@ -20,10 +20,10 @@ const StrategyDetail = () => {
     return (
         <div>
             <Layout.Content className="page-detail-warp">
-                <Tabs activeKey={activeKey} onChange={handleTagChange}>
-                    <Tabs.TabPane tab="基本信息" key="info">
-                        <StrategyInfo active={activeKey === 'info'} id={id}/>
-                    </Tabs.TabPane>
+                <Tabs activeKey={activeKey} onChange={handleTagChange}
+items={[
+                        {key: 'info', label: '基本信息', children: (<StrategyInfo active={activeKey === 'info'} id={id}/>)}
+                    ]}>
                 </Tabs>
             </Layout.Content>
         </div>

@@ -8,6 +8,7 @@ import (
 type AccessGateway struct {
 	ID          string          `gorm:"primary_key,type:varchar(36)" json:"id"`
 	Name        string          `gorm:"type:varchar(500)" json:"name"`
+	Type        string          `gorm:"type:varchar(20)" json:"type"`
 	IP          string          `gorm:"type:varchar(500)" json:"ip"`
 	Port        int             `gorm:"type:int(5)" json:"port"`
 	AccountType string          `gorm:"type:varchar(50)" json:"accountType"`
@@ -25,6 +26,7 @@ func (r *AccessGateway) TableName() string {
 type AccessGatewayForPage struct {
 	ID          string          `json:"id"`
 	Name        string          `json:"name"`
+	Type        string          `json:"type"`
 	IP          string          `json:"ip"`
 	Port        int             `json:"port"`
 	AccountType string          `json:"accountType"`

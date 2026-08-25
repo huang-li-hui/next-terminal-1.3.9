@@ -28,7 +28,7 @@ const findTreePath = (tree, filter, path = []) => {
 }
 
 const RoleModal = ({
-                       visible,
+                       open,
                        handleOk,
                        handleCancel,
                        confirmLoading,
@@ -40,7 +40,7 @@ const RoleModal = ({
     let [roleMenus, setRoleMenus] = useState([]);
 
     useQuery('roleQuery', () => api.getById(id), {
-        enabled: visible && strings.hasText(id),
+        enabled: open && strings.hasText(id),
         onSuccess: (data) => {
             form.setFieldsValue(data);
             let roleMenus = [];
@@ -54,7 +54,7 @@ const RoleModal = ({
     });
 
     let menuQuery = useQuery('menuQuery', permissionApi.getMenus, {
-        enabled: visible,
+        enabled: open,
     });
 
     const onCheck = (checkedKeysValue) => {
@@ -88,9 +88,10 @@ const RoleModal = ({
         <Modal
             width={960}
             title={id ? '更新角色' : '新建角色'}
-            visible={visible}
+            open={open}
             maskClosable={false}
-            destroyOnClose={true}
+            forceRender
+            destroyOnHidden
             onOk={() => {
                 form
                     .validateFields()
@@ -112,8 +113,8 @@ const RoleModal = ({
         >
 
             <Form form={form} {...formItemLayout}>
-                <Form.Item name='id' noStyle>
-                    <Input hidden={true}/>
+                <Form.Item name='id' hidden>
+                    <Input/>
                 </Form.Item>
 
                 <Form.Item label="名称" name='name' rules={[{required: true, message: '请输入角色名称'}]}>

@@ -12,7 +12,7 @@ const actionRef = React.createRef();
 const api = credentialApi;
 
 const Credential = () => {
-    let [visible, setVisible] = useState(false);
+    let [open, setOpen] = useState(false);
     let [confirmLoading, setConfirmLoading] = useState(false);
     let [selectedRowKey, setSelectedRowKey] = useState(undefined);
 
@@ -70,7 +70,7 @@ const Credential = () => {
                     <a
                         key="edit"
                         onClick={() => {
-                            setVisible(true);
+                            setOpen(true);
                             setSelectedRowKey(record['id']);
                         }}
                     >
@@ -138,7 +138,7 @@ const Credential = () => {
             toolBarRender={() => [
                 <Show menu={'credential-add'}>
                     <Button key="button" type="primary" onClick={() => {
-                        setVisible(true)
+                        setOpen(true)
                     }}>
                         新建
                     </Button>
@@ -148,10 +148,10 @@ const Credential = () => {
 
         <CredentialModal
             id={selectedRowKey}
-            visible={visible}
+            open={open}
             confirmLoading={confirmLoading}
             handleCancel={() => {
-                setVisible(false);
+                setOpen(false);
                 setSelectedRowKey(undefined);
             }}
             handleOk={async (values) => {
@@ -165,7 +165,7 @@ const Credential = () => {
                         success = await api.create(values);
                     }
                     if (success) {
-                        setVisible(false);
+                        setOpen(false);
                     }
                     actionRef.current.reload();
                 } finally {

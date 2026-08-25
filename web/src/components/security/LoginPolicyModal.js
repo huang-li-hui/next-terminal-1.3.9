@@ -11,7 +11,7 @@ const formItemLayout = {
 let wkRef = React.createRef();
 
 const LoginPolicyModal = ({
-                              visible,
+                              open,
                               handleOk,
                               handleCancel,
                               confirmLoading,
@@ -30,7 +30,7 @@ const LoginPolicyModal = ({
                 wkRef.current.renderWeekTime(data.timePeriod);
             }
         }
-        if (visible && id) {
+        if (open && id) {
             getItem();
         } else {
             form.setFieldsValue({
@@ -40,14 +40,15 @@ const LoginPolicyModal = ({
                 enabled: true
             });
         }
-    }, [visible])
+    }, [open])
 
     return (
         <Modal
             title={id ? '更新登录策略' : '新建登录策略'}
-            visible={visible}
+            open={open}
             maskClosable={false}
-            destroyOnClose={true}
+            forceRender
+            destroyOnHidden
             width={900}
             onOk={() => {
                 form
@@ -71,8 +72,8 @@ const LoginPolicyModal = ({
         >
 
             <Form form={form} {...formItemLayout}>
-                <Form.Item name='id' noStyle>
-                    <Input hidden={true}/>
+                <Form.Item name='id' hidden>
+                    <Input/>
                 </Form.Item>
 
                 <Form.Item label="名称" name='name' rules={[{required: true}]}>

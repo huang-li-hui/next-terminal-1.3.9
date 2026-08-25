@@ -67,19 +67,26 @@ func (api WebTerminalApi) SshEndpoint(c echo.Context) error {
 		port       = s.Port
 	)
 
+	useSocksGateway := false
+	var socksGatewayHost, socksGatewayPort, socksGatewayUsername, socksGatewayPassword string
 	if s.AccessGatewayId != "" && s.AccessGatewayId != "-" {
 		g, err := service.GatewayService.GetGatewayById(s.AccessGatewayId)
 		if err != nil {
 			return WriteMessage(ws, dto.NewMessage(Closed, "获取接入网关失败："+err.Error()))
 		}
 
-		defer g.CloseSshTunnel(s.ID)
-		exposedIP, exposedPort, err := g.OpenSshTunnel(s.ID, ip, port)
-		if err != nil {
-			return WriteMessage(ws, dto.NewMessage(Closed, "创建隧道失败："+err.Error()))
+		if g.IsSocks5() {
+			useSocksGateway = true
+			socksGatewayHost, socksGatewayPort, socksGatewayUsername, socksGatewayPassword = g.Socks5ProxyInfo()
+		} else {
+			defer g.CloseSshTunnel(s.ID)
+			exposedIP, exposedPort, err := g.OpenSshTunnel(s.ID, ip, port)
+			if err != nil {
+				return WriteMessage(ws, dto.NewMessage(Closed, "创建隧道失败："+err.Error()))
+			}
+			ip = exposedIP
+			port = exposedPort
 		}
-		ip = exposedIP
-		port = exposedPort
 	}
 
 	recording := ""
@@ -100,7 +107,9 @@ func (api WebTerminalApi) SshEndpoint(c echo.Context) error {
 
 	var xterm = "xterm-256color"
 	var nextTerminal *term.NextTerminal
-	if "true" == attributes[nt.SocksProxyEnable] {
+	if useSocksGateway {
+		nextTerminal, err = term.NewNextTerminalUseSocks(ip, port, username, password, privateKey, passphrase, rows, cols, recording, xterm, true, socksGatewayHost, socksGatewayPort, socksGatewayUsername, socksGatewayPassword)
+	} else if "true" == attributes[nt.SocksProxyEnable] {
 		nextTerminal, err = term.NewNextTerminalUseSocks(ip, port, username, password, privateKey, passphrase, rows, cols, recording, xterm, true, attributes[nt.SocksProxyHost], attributes[nt.SocksProxyPort], attributes[nt.SocksProxyUsername], attributes[nt.SocksProxyPassword])
 	} else {
 		nextTerminal, err = term.NewNextTerminal(ip, port, username, password, privateKey, passphrase, rows, cols, recording, xterm, true)

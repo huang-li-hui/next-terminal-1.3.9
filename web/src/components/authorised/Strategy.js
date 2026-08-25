@@ -23,7 +23,7 @@ const renderStatus = (text) => {
 
 const Strategy = () => {
 
-    let [visible, setVisible] = useState(false);
+    let [open, setOpen] = useState(false);
     let [confirmLoading, setConfirmLoading] = useState(false);
     let [selectedRowKey, setSelectedRowKey] = useState(undefined);
 
@@ -120,7 +120,7 @@ const Strategy = () => {
                     <a
                         key="edit"
                         onClick={() => {
-                            setVisible(true);
+                            setOpen(true);
                             setSelectedRowKey(record['id']);
                         }}
                     >
@@ -193,7 +193,7 @@ const Strategy = () => {
                     toolBarRender={() => [
                         <Show menu={'strategy-add'}>
                             <Button key="button" type="primary" onClick={() => {
-                                setVisible(true)
+                                setOpen(true)
                             }}>
                                 新建
                             </Button>
@@ -204,10 +204,10 @@ const Strategy = () => {
 
                 <StrategyModal
                     id={selectedRowKey}
-                    visible={visible}
+                    open={open}
                     confirmLoading={confirmLoading}
                     handleCancel={() => {
-                        setVisible(false);
+                        setOpen(false);
                         setSelectedRowKey(undefined);
                     }}
                     handleOk={async (values) => {
@@ -221,7 +221,7 @@ const Strategy = () => {
                                 success = await api.create(values);
                             }
                             if (success) {
-                                setVisible(false);
+                                setOpen(false);
                             }
                             actionRef.current.reload();
                         } finally {

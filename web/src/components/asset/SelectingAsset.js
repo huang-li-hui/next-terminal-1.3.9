@@ -14,7 +14,7 @@ const {Title} = Typography;
 const actionRef = React.createRef();
 
 const SelectingAsset = ({
-                            visible,
+                            open,
                             handleOk,
                             handleCancel,
                             confirmLoading,
@@ -159,7 +159,7 @@ const SelectingAsset = ({
         <div>
             <Modal
                 title="选择资产"
-                visible={visible}
+                open={open}
                 width={window.innerWidth * 0.8}
                 centered={true}
                 onOk={() => {

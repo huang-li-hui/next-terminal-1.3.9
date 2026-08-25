@@ -22,6 +22,14 @@ class AssetApi extends Api {
         return [result['data']['active'], result['data']['message']];
     }
 
+    sshTest = async (params) => {
+        let result = await request.post(`/${this.group}/ssh-test`, params);
+        if (result.code !== 1) {
+            return [false, false, result.message];
+        }
+        return [result['data']['active'], result['data']['authOk'], result['data']['message']];
+    }
+
     importAsset = async (file) => {
         const formData = new FormData();
         formData.append("file", file,);

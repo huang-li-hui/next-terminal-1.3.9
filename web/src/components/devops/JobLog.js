@@ -6,7 +6,7 @@ import jobApi from "../../api/job";
 const actionRef = React.createRef();
 
 const JobLog = ({
-                    visible,
+                    open,
                     handleCancel,
                     id,
                 }) => {
@@ -44,9 +44,9 @@ const JobLog = ({
                 closable={true}
                 maskClosable={true}
                 onClose={handleCancel}
-                open={visible}
+                open={open}
             >
-                {visible ?
+                {open ?
                     <ProTable
                         columns={columns}
                         actionRef={actionRef}

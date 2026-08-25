@@ -15,7 +15,7 @@ const actionRef = React.createRef();
 const Command = () => {
     let [assetVisible, setAssetVisible] = useState(false);
 
-    let [visible, setVisible] = useState(false);
+    let [open, setOpen] = useState(false);
     let [confirmLoading, setConfirmLoading] = useState(false);
     let [selectedRowKey, setSelectedRowKey] = useState(undefined);
 
@@ -71,7 +71,7 @@ const Command = () => {
                     <a
                         key="edit"
                         onClick={() => {
-                            setVisible(true);
+                            setOpen(true);
                             setSelectedRowKey(record['id']);
                         }}
                     >
@@ -155,7 +155,7 @@ const Command = () => {
             toolBarRender={() => [
                 <Show menu={'command-add'}>
                     <Button key="button" type="primary" onClick={() => {
-                        setVisible(true)
+                        setOpen(true)
                     }}>
                         新建
                     </Button>
@@ -165,10 +165,10 @@ const Command = () => {
 
         <CommandModal
             id={selectedRowKey}
-            visible={visible}
+            open={open}
             confirmLoading={confirmLoading}
             handleCancel={() => {
-                setVisible(false);
+                setOpen(false);
                 setSelectedRowKey(undefined);
             }}
             handleOk={async (values) => {
@@ -182,7 +182,7 @@ const Command = () => {
                         success = await api.create(values);
                     }
                     if (success) {
-                        setVisible(false);
+                        setOpen(false);
                     }
                     actionRef.current.reload();
                 } finally {
@@ -192,7 +192,7 @@ const Command = () => {
         />
 
         <SelectingAsset
-            visible={assetVisible}
+            open={assetVisible}
             handleCancel={() => {
                 setAssetVisible(false);
                 setSelectedRowKey(undefined);

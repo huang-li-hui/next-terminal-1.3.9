@@ -9,7 +9,7 @@ const formItemLayout = {
     wrapperCol: {span: 14},
 };
 
-const UserAuthorised = ({type, id, visible, handleOk, handleCancel, confirmLoading}) => {
+const UserAuthorised = ({type, id, open, handleOk, handleCancel, confirmLoading}) => {
     const [form] = Form.useForm();
 
     let [selectedAssetIds, setSelectedAssetIds] = useState([]);
@@ -37,12 +37,12 @@ const UserAuthorised = ({type, id, visible, handleOk, handleCancel, confirmLoadi
             setStrategies(strategies);
         }
 
-        if (visible) {
+        if (open) {
             fetchData();
         } else {
             form.resetFields();
         }
-    }, [visible])
+    }, [open])
 
     let strategyOptions = strategies.map(item=>{
         return {
@@ -62,9 +62,10 @@ const UserAuthorised = ({type, id, visible, handleOk, handleCancel, confirmLoadi
     return (
         <Modal
             title={'资产授权'}
-            visible={visible}
+            open={open}
             maskClosable={false}
-            destroyOnClose={true}
+            forceRender
+            destroyOnHidden
             onOk={() => {
                 form
                     .validateFields()

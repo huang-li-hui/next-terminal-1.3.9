@@ -11,7 +11,7 @@ const accountTypes = [
 ];
 
 const CredentialModal = ({
-                             visible,
+                             open,
                              handleOk,
                              handleCancel,
                              confirmLoading,
@@ -42,7 +42,7 @@ const CredentialModal = ({
         }
 
 
-        if (visible) {
+        if (open) {
             if (id) {
                 getItem();
             }else {
@@ -53,15 +53,16 @@ const CredentialModal = ({
         } else {
             form.resetFields();
         }
-    }, [visible]);
+    }, [open]);
 
     return (
 
         <Modal
             title={id ? '更新授权凭证' : '新建授权凭证'}
-            visible={visible}
+            open={open}
             maskClosable={false}
-            destroyOnClose={true}
+            forceRender
+            destroyOnHidden
             onOk={() => {
                 form
                     .validateFields()
@@ -82,8 +83,8 @@ const CredentialModal = ({
         >
 
             <Form form={form} {...formItemLayout}>
-                <Form.Item name='id' noStyle>
-                    <Input hidden={true}/>
+                <Form.Item name='id' hidden>
+                    <Input/>
                 </Form.Item>
 
                 <Form.Item label="凭证名称" name='name' rules={[{required: true, message: '请输入凭证名称'}]}>

@@ -47,69 +47,67 @@ const Info = () => {
     return (
         <>
             <Content className={'page-container-white'}>
-                <Tabs className={'info-tab'} tabPosition={'left'} tabBarStyle={{width: 150}}>
-                    <Tabs.TabPane tab="修改密码" key="change-password">
-                        <Title level={4}>修改密码</Title>
-                        <div style={{margin: 16}}></div>
-                        <Form name="password" onFinish={changePassword}>
+                <Tabs className={'info-tab'} tabPosition={'left'} tabBarStyle={{width: 150}}
+items={[
+                        {key: 'change-password', label: '修改密码', children: (
+                            <>
+                            <Title level={4}>修改密码</Title>
+                            <div style={{margin: 16}}></div>
+                            <Form name="password" onFinish={changePassword}>
                             <input type='password' hidden={true} autoComplete='new-password'/>
                             <Form.Item
-                                name="oldPassword"
-                                label="原始密码"
-                                rules={[
-                                    {
-                                        required: true,
-                                        message: '原始密码',
-                                    },
-                                ]}
+                            name="oldPassword"
+                            label="原始密码"
+                            rules={[
+                            {
+                            required: true,
+                            message: '原始密码',
+                            },
+                            ]}
                             >
-                                <Input type='password' placeholder="请输入原始密码" style={{width: 240}}/>
+                            <Input type='password' placeholder="请输入原始密码" style={{width: 240}}/>
                             </Form.Item>
                             <Form.Item
-                                name="newPassword"
-                                label="新的密码"
-                                rules={[
-                                    {
-                                        required: true,
-                                        message: '请输入新的密码',
-                                    },
-                                ]}
+                            name="newPassword"
+                            label="新的密码"
+                            rules={[
+                            {
+                            required: true,
+                            message: '请输入新的密码',
+                            },
+                            ]}
                             >
-                                <Input type='password' placeholder="新的密码"
-                                       onChange={(value) => onNewPasswordChange(value)} style={{width: 240}}/>
+                            <Input type='password' placeholder="新的密码"
+                            onChange={(value) => onNewPasswordChange(value)} style={{width: 240}}/>
                             </Form.Item>
                             <Form.Item
-                                name="newPassword2"
-                                label="确认密码"
-                                rules={[
-                                    {
-                                        required: true,
-                                        message: '请和上面输入新的密码保持一致',
-                                    },
-                                ]}
-                                validateStatus={newPasswordStatus.validateStatus}
-                                help={newPasswordStatus.errorMsg || ' '}
+                            name="newPassword2"
+                            label="确认密码"
+                            rules={[
+                            {
+                            required: true,
+                            message: '请和上面输入新的密码保持一致',
+                            },
+                            ]}
+                            validateStatus={newPasswordStatus.validateStatus}
+                            help={newPasswordStatus.errorMsg || ' '}
                             >
-                                <Input type='password' placeholder="请和上面输入新的密码保持一致"
-                                       onChange={(value) => onNewPassword2Change(value)} style={{width: 240}}/>
+                            <Input type='password' placeholder="请和上面输入新的密码保持一致"
+                            onChange={(value) => onNewPassword2Change(value)} style={{width: 240}}/>
                             </Form.Item>
                             <Form.Item>
-                                <Button disabled={newPasswordStatus.errorMsg || !newPasswordStatus.validateStatus}
-                                        type="primary"
-                                        htmlType="submit">
-                                    提交
-                                </Button>
+                            <Button disabled={newPasswordStatus.errorMsg || !newPasswordStatus.validateStatus}
+                            type="primary"
+                            htmlType="submit">
+                            提交
+                            </Button>
                             </Form.Item>
-                        </Form>
-                    </Tabs.TabPane>
-
-                    <Tabs.TabPane tab="授权令牌" key="token">
-                        <AccessToken/>
-                    </Tabs.TabPane>
-
-                    <Tabs.TabPane tab="两步认证" key="totp">
-                        <Totp/>
-                    </Tabs.TabPane>
+                            </Form>
+                            </>
+                        )},
+                        {key: 'token', label: '授权令牌', children: (<AccessToken/>)},
+                        {key: 'totp', label: '两步认证', children: (<Totp/>)}
+                    ]}>
                 </Tabs>
             </Content>
         </>

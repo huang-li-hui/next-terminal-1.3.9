@@ -24,26 +24,16 @@ const UserDetail = () => {
 
     return (
         <div className="page-detail-warp">
-            <Tabs activeKey={activeKey} onChange={handleTagChange}>
-                {
-                    hasMenu('user-detail') &&
-                    <Tabs.TabPane tab="基本信息" key="info">
-                        <UserInfo active={activeKey === 'info'} userId={id}/>
-                    </Tabs.TabPane>
-                }
-                {
-                    hasMenu('user-authorised-asset') &&
-                    <Tabs.TabPane tab="授权的资产" key="asset">
-                        <UserAsset active={activeKey === 'asset'} id={id} type={'userId'}/>
-                    </Tabs.TabPane>
-                }
-                {
-                    hasMenu('user-login-policy') &&
-                    <Tabs.TabPane tab="登录策略" key="login-policy">
-                        <UserLoginPolicy active={activeKey === 'login-policy'} userId={id}/>
-                    </Tabs.TabPane>
-                }
-            </Tabs>
+            <Tabs activeKey={activeKey} onChange={handleTagChange}
+                  items={[
+                      ...(hasMenu('user-detail') ? [{key: 'info', label: '基本信息',
+                          children: (<UserInfo active={activeKey === 'info'} userId={id}/>)}] : []),
+                      ...(hasMenu('user-authorised-asset') ? [{key: 'asset', label: '授权的资产',
+                          children: (<UserAsset active={activeKey === 'asset'} id={id} type={'userId'}/>)}] : []),
+                      ...(hasMenu('user-login-policy') ? [{key: 'login-policy', label: '登录策略',
+                          children: (<UserLoginPolicy active={activeKey === 'login-policy'} userId={id}/>)}] : []),
+                  ]}>
+              </Tabs>
         </div>
     );
 }

@@ -5,13 +5,13 @@ import loginPolicyApi from "../../../api/login-policy";
 
 const actionRef = React.createRef();
 
-const UserLoginPolicyBind = ({visible, userId, handleOk, handleCancel}) => {
+const UserLoginPolicyBind = ({open, userId, handleOk, handleCancel}) => {
 
     let [bindKeys, setBindKeys] = useState([]);
 
     useEffect(() => {
         const x = async () => {
-            if (!visible || !userId) {
+            if (!open || !userId) {
                 return;
             }
             // 获取该用户已绑定的策略，需要逐个策略查询绑定的用户ID
@@ -29,7 +29,7 @@ const UserLoginPolicyBind = ({visible, userId, handleOk, handleCancel}) => {
             setBindKeys(boundIds);
         }
         x();
-    }, [visible]);
+    }, [open]);
 
     const handleBind = async (record) => {
         let success;
@@ -112,11 +112,11 @@ const UserLoginPolicyBind = ({visible, userId, handleOk, handleCancel}) => {
         <div>
             <Modal
                 title={'绑定登录策略'}
-                visible={visible}
+                open={open}
                 width={window.innerWidth * 0.8}
                 footer={null}
                 onCancel={handleCancel}
-                destroyOnClose
+                destroyOnHidden
             >
                 <ProTable
                     columns={columns}

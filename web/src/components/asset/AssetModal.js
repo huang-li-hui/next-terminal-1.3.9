@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {Collapse, Form, Input, InputNumber, Modal, Radio, Select, Switch, Tabs, Tooltip, Typography} from "antd";
+import {Button, Collapse, Form, Input, InputNumber, message, Modal, Radio, Select, Space, Switch, Tabs, Tooltip, Typography} from "antd";
 import request from "../../common/request";
 import assetApi from "../../api/asset";
 import tagApi from "../../api/tag";
@@ -39,7 +39,7 @@ const TELENETFormItemLayout = {
 };
 
 const AssetModal = function ({
-                                 visible,
+                                 open,
                                  handleOk,
                                  handleCancel,
                                  confirmLoading,
@@ -50,14 +50,49 @@ const AssetModal = function ({
     const [form] = Form.useForm();
 
     let [accountType, setAccountType] = useState('custom');
-    let [protocol, setProtocol] = useState('rdp');
-    let [protocolOptions, setProtocolOptions] = useState(protocolMapping['rdp']);
+    let [protocol, setProtocol] = useState('ssh');
+    let [protocolOptions, setProtocolOptions] = useState(protocolMapping['ssh']);
     let [useSSL, setUseSSL] = useState(false);
     let [storages, setStorages] = useState([]);
     let [enableDrive, setEnableDrive] = useState(false);
     let [socksProxyEnable, setSocksProxyEnable] = useState(false);
 
     let [accessGateways, setAccessGateways] = useState([]);
+    let [testing, setTesting] = useState(false);
+
+    const handleSshTest = async () => {
+        try {
+            await form.validateFields(['ip', 'port']);
+        } catch (e) {
+            return;
+        }
+        let values = form.getFieldsValue(['ip', 'port', 'accountType', 'username', 'password', 'privateKey', 'passphrase', 'credentialId', 'accessGatewayId']);
+        if (values['accountType'] === 'custom' && !values['username']) {
+            message.warning('请先输入授权账户');
+            return;
+        }
+        if (values['accountType'] === 'private-key' && !values['privateKey']) {
+            message.warning('请先输入私钥');
+            return;
+        }
+        if (values['accountType'] === 'credential' && !values['credentialId']) {
+            message.warning('请先选择授权凭证');
+            return;
+        }
+        setTesting(true);
+        try {
+            let [active, authOk, msg] = await assetApi.sshTest(values);
+            if (!active) {
+                message.error(`连接失败：${msg}`);
+            } else if (!authOk) {
+                message.error(`认证失败：${msg}`);
+            } else {
+                message.success('连接成功，账号密码验证通过');
+            }
+        } finally {
+            setTesting(false);
+        }
+    }
     let [tags, setTags] = useState([]);
     let [credentials, setCredentials] = useState([]);
 
@@ -115,7 +150,7 @@ const AssetModal = function ({
             setTags(tags);
         }
 
-        if (visible) {
+        if (open) {
             if (id) {
                 getItem();
             }
@@ -125,7 +160,7 @@ const AssetModal = function ({
             form.setFieldsValue({
                 'accountType': accountType,
                 'protocol': protocol,
-                'port': 3389,
+                'port': 22,
                 'enable-drive': false,
                 'force-lossless': false,
                 'socks-proxy-enable': false,
@@ -134,7 +169,7 @@ const AssetModal = function ({
             });
         }
 
-    }, [visible]);
+    }, [open]);
 
     const handleProtocolChange = e => {
         setProtocol(e.target.value)
@@ -195,8 +230,8 @@ const AssetModal = function ({
 
         <Form.Item label="协议" name='protocol' rules={[{required: true, message: '请选择接入协议'}]}>
             <Radio.Group onChange={handleProtocolChange}>
-                <Radio value="rdp">RDP</Radio>
                 <Radio value="ssh">SSH</Radio>
+                <Radio value="rdp">RDP</Radio>
                 <Radio value="vnc">VNC</Radio>
                 <Radio value="telnet">Telnet</Radio>
                 <Radio value="kubernetes">Kubernetes</Radio>
@@ -204,7 +239,7 @@ const AssetModal = function ({
         </Form.Item>
 
         <Form.Item label="主机地址" rules={[{required: true, message: '请输入资产的主机名称和IP地址'}]}>
-            <Input.Group compact>
+            <Space.Compact style={{width: '100%'}}>
                 <Form.Item noStyle name='ip'>
                     <Input style={{width: '80%'}} placeholder="资产的主机名称或者IP地址"/>
                 </Form.Item>
@@ -212,7 +247,7 @@ const AssetModal = function ({
                 <Form.Item noStyle name='port'>
                     <InputNumber style={{width: '20%'}} min={1} max={65535} placeholder='TCP端口'/>
                 </Form.Item>
-            </Input.Group>
+            </Space.Compact>
         </Form.Item>
 
 
@@ -302,6 +337,16 @@ const AssetModal = function ({
                                 <TextArea rows={1}/>
                             </Form.Item>
                         </>
+                        : null
+                }
+
+                {
+                    protocol === 'ssh' ?
+                        <Form.Item wrapperCol={{offset: 6, span: 14}}>
+                            <Button loading={testing} onClick={handleSshTest}>
+                                测试连通性及账号密码
+                            </Button>
+                        </Form.Item>
                         : null
                 }
             </>
@@ -465,8 +510,8 @@ Windows需要对远程应用程序的名称使用特殊的符号。
                 protocol === 'ssh' ?
                     <>
                         <Panel header={<Text strong>Socks 代理</Text>} key="socks">
-                            <Form.Item name='ssh-mode' noStyle initialValue='native'>
-                                <Input hidden={true}/>
+                            <Form.Item name='ssh-mode' hidden initialValue='native'>
+                                <Input/>
                             </Form.Item>
                             <Form.Item
                                 name="socks-proxy-enable"
@@ -771,9 +816,10 @@ Windows需要对远程应用程序的名称使用特殊的符号。
         <Modal
             className={'asset-modal'}
             title={id && copied === false ? '更新资产' : '新建资产'}
-            visible={visible}
+            open={open}
             maskClosable={false}
-            destroyOnClose={true}
+            forceRender
+            destroyOnHidden
             centered
             width={700}
             onOk={() => {
@@ -802,8 +848,8 @@ Windows需要对远程应用程序的名称使用特殊的符号。
         >
 
             <Form form={form} {...formLayout}>
-                <Form.Item name='id' noStyle>
-                    <Input hidden={true}/>
+                <Form.Item name='id' hidden>
+                    <Input/>
                 </Form.Item>
 
                 <Tabs

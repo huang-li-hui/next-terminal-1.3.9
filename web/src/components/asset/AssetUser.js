@@ -10,7 +10,7 @@ const actionRef = React.createRef();
 
 const AssetUser = ({active, id}) => {
 
-    let [visible, setVisible] = useState(false);
+    let [open, setOpen] = useState(false);
     let [confirmLoading, setConfirmLoading] = useState(false);
 
     useEffect(() => {
@@ -108,7 +108,7 @@ const AssetUser = ({active, id}) => {
                 toolBarRender={() => [
                     <Show menu={'asset-authorised-user-add'} key={'bind-acc'}>
                         <Button key="button" type="primary" onClick={() => {
-                            setVisible(true);
+                            setOpen(true);
                         }}>
                             授权
                         </Button>
@@ -119,10 +119,10 @@ const AssetUser = ({active, id}) => {
 
             <AssetUserBind
                 id={id}
-                visible={visible}
+                open={open}
                 confirmLoading={confirmLoading}
                 handleCancel={() => {
-                    setVisible(false);
+                    setOpen(false);
                 }}
                 handleOk={async (values) => {
                     setConfirmLoading(true);
@@ -130,7 +130,7 @@ const AssetUser = ({active, id}) => {
                     try {
                         let success = authorisedApi.AuthorisedUsers(values);
                         if (success) {
-                            setVisible(false);
+                            setOpen(false);
                         }
                         actionRef.current.reload();
                     } finally {

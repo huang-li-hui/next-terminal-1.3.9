@@ -18,8 +18,13 @@ func (m *manager) GetById(id string) *Gateway {
 }
 
 func (m *manager) Add(model *model.AccessGateway) *Gateway {
+	gatewayType := model.Type
+	if gatewayType == "" {
+		gatewayType = "ssh"
+	}
 	g := &Gateway{
 		ID:         model.ID,
+		Type:       gatewayType,
 		IP:         model.IP,
 		Port:       model.Port,
 		Username:   model.Username,

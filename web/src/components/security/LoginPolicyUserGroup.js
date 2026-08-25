@@ -9,7 +9,7 @@ const actionRef = React.createRef();
 
 const LoginPolicyUserGroup = ({active, loginPolicyId}) => {
 
-    let [visible, setVisible] = useState(false);
+    let [open, setOpen] = useState(false);
 
     const handleUnbind = async (userGroupId) => {
         await loginPolicyApi.UnbindUserGroup(loginPolicyId, [{'userGroupId': userGroupId}]);
@@ -92,7 +92,7 @@ const LoginPolicyUserGroup = ({active, loginPolicyId}) => {
                 toolBarRender={() => [
                     <Show menu={'login-policy-bind-user-group'}>
                         <Button key="button" type="primary" onClick={() => {
-                            setVisible(true);
+                            setOpen(true);
                         }}>
                             绑定
                         </Button>
@@ -100,10 +100,10 @@ const LoginPolicyUserGroup = ({active, loginPolicyId}) => {
                 ]}
             />
 
-            <LoginPolicyUserGroupBind visible={visible}
+            <LoginPolicyUserGroupBind open={open}
                                       loginPolicyId={loginPolicyId}
                                       onClose={() => {
-                                          setVisible(false);
+                                          setOpen(false);
                                           actionRef.current.reload();
                                       }}/>
         </div>
@@ -112,7 +112,7 @@ const LoginPolicyUserGroup = ({active, loginPolicyId}) => {
 
 const bindActionRef = React.createRef();
 
-const LoginPolicyUserGroupBind = ({visible, loginPolicyId, onClose}) => {
+const LoginPolicyUserGroupBind = ({open, loginPolicyId, onClose}) => {
 
     let [bindKeys, setBindKeys] = useState([]);
 
@@ -122,7 +122,7 @@ const LoginPolicyUserGroupBind = ({visible, loginPolicyId, onClose}) => {
             setBindKeys(ids);
         }
         x();
-    }, [visible]);
+    }, [open]);
 
     const handleBind = async (userGroupId) => {
         await loginPolicyApi.BindUserGroup(loginPolicyId, [{'userGroupId': userGroupId}]);
@@ -171,7 +171,7 @@ const LoginPolicyUserGroupBind = ({visible, loginPolicyId, onClose}) => {
                 placement="right"
                 width={window.innerWidth * 0.7}
                 onClose={onClose}
-                visible={visible}
+                open={open}
         >
             <ProTable
                 columns={columns}

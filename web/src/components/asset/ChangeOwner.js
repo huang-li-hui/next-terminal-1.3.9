@@ -21,7 +21,7 @@ const ChangeOwner = ({lastOwner, open, handleOk, handleCancel}) => {
                    setConfirmLoading(false);
                }}
                onCancel={handleCancel}
-               destroyOnClose={true}
+               destroyOnHidden
         >
             {/*<Alert style={{marginBottom: `8px`}} message="Informational Notes" type="info" showIcon />*/}
 

@@ -17,7 +17,7 @@ const actionRef = React.createRef();
 const api = jobApi;
 
 const Job = () => {
-    let [visible, setVisible] = useState(false);
+    let [open, setOpen] = useState(false);
     let [confirmLoading, setConfirmLoading] = useState(false);
     let [selectedRowKey, setSelectedRowKey] = useState(undefined);
 
@@ -135,7 +135,7 @@ const Job = () => {
                     <a
                         key="edit"
                         onClick={() => {
-                            setVisible(true);
+                            setOpen(true);
                             setSelectedRowKey(record['id']);
                         }}
                     >
@@ -237,7 +237,7 @@ const Job = () => {
                     toolBarRender={() => [
                         <Show menu={'job-add'}>
                             <Button key="button" type="primary" onClick={() => {
-                                setVisible(true)
+                                setOpen(true)
                             }}>
                                 新建
                             </Button>
@@ -247,10 +247,10 @@ const Job = () => {
 
                 <JobModal
                     id={selectedRowKey}
-                    visible={visible}
+                    open={open}
                     confirmLoading={confirmLoading}
                     handleCancel={() => {
-                        setVisible(false);
+                        setOpen(false);
                         setSelectedRowKey(undefined);
                     }}
                     handleOk={async (values) => {
@@ -269,7 +269,7 @@ const Job = () => {
                                 success = await api.create(values);
                             }
                             if (success) {
-                                setVisible(false);
+                                setOpen(false);
                             }
                             actionRef.current.reload();
                         } finally {
@@ -280,7 +280,7 @@ const Job = () => {
 
                 <JobLog
                     id={selectedRowKey}
-                    visible={logVisible}
+                    open={logVisible}
                     handleCancel={() => {
                         setLogVisible(false);
                         setSelectedRowKey(undefined);

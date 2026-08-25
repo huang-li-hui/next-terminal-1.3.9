@@ -10,7 +10,7 @@ const formItemLayout = {
     wrapperCol: {span: 14},
 };
 
-const UserModal = ({visible, handleOk, handleCancel, confirmLoading, id}) => {
+const UserModal = ({open, handleOk, handleCancel, confirmLoading, id}) => {
 
     const [form] = Form.useForm();
 
@@ -19,7 +19,7 @@ const UserModal = ({visible, handleOk, handleCancel, confirmLoading, id}) => {
     let rolesQuery = useQuery('rolesQuery', roleApi.GetAll);
 
     useQuery('userQuery', () => userApi.getById(id), {
-        enabled: visible && strings.hasText(id),
+        enabled: open && strings.hasText(id),
         onSuccess: (data) => {
             if (data.roles === null) {
                 data.roles = undefined;
@@ -32,9 +32,10 @@ const UserModal = ({visible, handleOk, handleCancel, confirmLoading, id}) => {
     return (
         <Modal
             title={id ? '更新用户' : '新建用户'}
-            visible={visible}
+            open={open}
             maskClosable={false}
-            destroyOnClose={true}
+            forceRender
+            destroyOnHidden
             onOk={() => {
                 form
                     .validateFields()
@@ -55,8 +56,8 @@ const UserModal = ({visible, handleOk, handleCancel, confirmLoading, id}) => {
         >
 
             <Form form={form} {...formItemLayout} >
-                <Form.Item name='id' noStyle>
-                    <Input hidden={true}/>
+                <Form.Item name='id' hidden>
+                    <Input/>
                 </Form.Item>
 
                 <Form.Item label="登录账户" name='username' rules={[{required: true, message: '请输入登录账户'}]}>

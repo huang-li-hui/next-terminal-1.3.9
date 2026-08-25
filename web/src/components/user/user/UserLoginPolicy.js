@@ -127,7 +127,7 @@ const UserLoginPolicy = ({active, userId}) => {
             />
 
             <UserLoginPolicyBind
-                visible={bindVisible}
+                open={bindVisible}
                 userId={userId}
                 handleCancel={() => setBindVisible(false)}
             />

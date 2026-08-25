@@ -16,7 +16,7 @@ const actionRef = React.createRef();
 
 const UserGroup = () => {
 
-    let [visible, setVisible] = useState(false);
+    let [open, setOpen] = useState(false);
     let [confirmLoading, setConfirmLoading] = useState(false);
     let [selectedRowKey, setSelectedRowKey] = useState(undefined);
 
@@ -55,7 +55,7 @@ const UserGroup = () => {
                     <a
                         key="edit"
                         onClick={() => {
-                            setVisible(true);
+                            setOpen(true);
                             setSelectedRowKey(record['id']);
                         }}
                     >
@@ -142,7 +142,7 @@ const UserGroup = () => {
             toolBarRender={() => [
                 <Show menu={'user-group-add'}>
                     <Button key="button" type="primary" onClick={() => {
-                        setVisible(true)
+                        setOpen(true)
                     }}>
                         新建
                     </Button>
@@ -152,10 +152,10 @@ const UserGroup = () => {
 
         <UserGroupModal
             id={selectedRowKey}
-            visible={visible}
+            open={open}
             confirmLoading={confirmLoading}
             handleCancel={() => {
-                setVisible(false);
+                setOpen(false);
                 setSelectedRowKey(undefined);
             }}
             handleOk={async (values) => {
@@ -169,7 +169,7 @@ const UserGroup = () => {
                         success = await api.create(values);
                     }
                     if (success) {
-                        setVisible(false);
+                        setOpen(false);
                     }
                     actionRef.current.reload();
                 } finally {

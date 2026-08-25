@@ -9,7 +9,7 @@ const actionRef = React.createRef();
 
 const LoginPolicyUser = ({active, loginPolicyId}) => {
 
-    let [visible, setVisible] = useState(false);
+    let [open, setOpen] = useState(false);
 
     const handleUnbind = async (userId) => {
         await loginPolicyApi.Unbind(loginPolicyId, [{'userId': userId}]);
@@ -104,7 +104,7 @@ const LoginPolicyUser = ({active, loginPolicyId}) => {
                 toolBarRender={() => [
                     <Show menu={'login-policy-bind-user'}>
                         <Button key="button" type="primary" onClick={() => {
-                            setVisible(true);
+                            setOpen(true);
                         }}>
                             绑定
                         </Button>
@@ -116,12 +116,12 @@ const LoginPolicyUser = ({active, loginPolicyId}) => {
                     placement="right"
                     width={window.innerWidth * 0.7}
                     onClose={() => {
-                        setVisible(false);
+                        setOpen(false);
                         actionRef.current.reload();
                     }}
-                    visible={visible}
+                    open={open}
             >
-                <LoginPolicyBind visible={visible} loginPolicyId={loginPolicyId}/>
+                <LoginPolicyBind open={open} loginPolicyId={loginPolicyId}/>
             </Drawer>
         </div>
     );

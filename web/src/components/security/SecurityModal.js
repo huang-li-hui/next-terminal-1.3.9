@@ -8,7 +8,7 @@ const formItemLayout = {
 };
 
 const SecurityModal = ({
-                           visible,
+                           open,
                            handleOk,
                            handleCancel,
                            confirmLoading,
@@ -25,21 +25,22 @@ const SecurityModal = ({
                 form.setFieldsValue(data);
             }
         }
-        if (visible && id) {
+        if (open && id) {
             getItem();
         } else {
             form.setFieldsValue({
                 priority: 50,
             });
         }
-    }, [visible])
+    }, [open])
 
     return (
         <Modal
             title={id ? '更新访问规则' : '新建访问规则'}
-            visible={visible}
+            open={open}
             maskClosable={false}
-            destroyOnClose={true}
+            forceRender
+            destroyOnHidden
             onOk={() => {
                 form
                     .validateFields()
@@ -60,8 +61,8 @@ const SecurityModal = ({
         >
 
             <Form form={form} {...formItemLayout}>
-                <Form.Item name='id' noStyle>
-                    <Input hidden={true}/>
+                <Form.Item name='id' hidden>
+                    <Input/>
                 </Form.Item>
 
                 <Form.Item label="IP地址" name='ip' rules={[{required: true, message: '请输入IP地址'}]} extra='格式为逗号分隔的字符串, 0.0.0.0/0 匹配所有。例如: 192.168.0.1, 192.168.1.0/24, 192.168.2.0-192.168.2.20'>

@@ -31,14 +31,14 @@ const defaultStats = {
     }
 }
 
-const Stats = ({sessionId, visible, queryInterval = 5000}) => {
+const Stats = ({sessionId, open, queryInterval = 5000}) => {
 
     let [stats, setStats] = useState(defaultStats);
     let [prevStats, setPrevStats] = useState({});
 
     useQuery("stats", () => sessionApi.stats(sessionId), {
         refetchInterval: queryInterval,
-        enabled: visible,
+        enabled: open,
         onSuccess: (data) => {
             setPrevStats(stats);
             setStats(data);

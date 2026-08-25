@@ -12,8 +12,8 @@ class MonitorApi {
             let item = data['netIO'][i];
             netIO.push({
                 time: item['time'],
-                read: item['read'] / 1024 / 1024 / 1024,
-                write: item['write'] / 1024 / 1024 / 1024,
+                read: item['read'] / 1024 / 1024,
+                write: item['write'] / 1024 / 1024,
             });
         }
         data['netIO'] = netIO;
@@ -23,8 +23,8 @@ class MonitorApi {
             let item = data['diskIO'][i];
             diskIO.push({
                 time: item['time'],
-                read: item['read'] / 1024 / 1024 / 1024,
-                write: item['write'] / 1024 / 1024 / 1024,
+                read: item['read'] / 1024 / 1024,
+                write: item['write'] / 1024 / 1024,
             });
         }
         data['diskIO'] = diskIO;

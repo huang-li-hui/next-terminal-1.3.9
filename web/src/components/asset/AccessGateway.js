@@ -14,7 +14,7 @@ const api = accessGatewayApi;
 const actionRef = React.createRef();
 
 const AccessGateway = () => {
-    let [visible, setVisible] = useState(false);
+    let [open, setOpen] = useState(false);
     let [confirmLoading, setConfirmLoading] = useState(false);
     let [selectedRowKey, setSelectedRowKey] = useState(undefined);
 
@@ -29,6 +29,13 @@ const AccessGateway = () => {
         {
             title: '名称',
             dataIndex: 'name',
+        },
+        {
+            title: '类型',
+            dataIndex: 'type',
+            key: 'type',
+            hideInSearch: true,
+            render: (text) => text === 'socks5' ? 'SOCKS5' : 'SSH隧道',
         },
         {
             title: 'IP',
@@ -97,7 +104,7 @@ const AccessGateway = () => {
                     <a
                         key="edit"
                         onClick={() => {
-                            setVisible(true);
+                            setOpen(true);
                             setSelectedRowKey(record['id']);
                         }}
                     >
@@ -166,7 +173,7 @@ const AccessGateway = () => {
             toolBarRender={() => [
                 <Show menu={'access-gateway-add'}>
                     <Button key="button" type="primary" onClick={() => {
-                        setVisible(true)
+                        setOpen(true)
                     }}>
                         新建
                     </Button>
@@ -176,10 +183,10 @@ const AccessGateway = () => {
 
         <AccessGatewayModal
             id={selectedRowKey}
-            visible={visible}
+            open={open}
             confirmLoading={confirmLoading}
             handleCancel={() => {
-                setVisible(false);
+                setOpen(false);
                 setSelectedRowKey(undefined);
             }}
             handleOk={async (values) => {
@@ -193,7 +200,7 @@ const AccessGateway = () => {
                         success = await api.create(values);
                     }
                     if (success) {
-                        setVisible(false);
+                        setOpen(false);
                     }
                     actionRef.current.reload();
                 } finally {

@@ -428,24 +428,15 @@ const Guacd = () => {
         focus();
     }
 
-    const hotKeyMenu = (
-        <Menu>
-            <Menu.Item key={'ctrl+alt+delete'}
-                       onClick={() => sendCombinationKey(['65507', '65513', '65535'])}>Ctrl+Alt+Delete</Menu.Item>
-            <Menu.Item key={'ctrl+alt+backspace'}
-                       onClick={() => sendCombinationKey(['65507', '65513', '65288'])}>Ctrl+Alt+Backspace</Menu.Item>
-            <Menu.Item key={'windows+d'}
-                       onClick={() => sendCombinationKey(['65515', '100'])}>Windows+D</Menu.Item>
-            <Menu.Item key={'windows+e'}
-                       onClick={() => sendCombinationKey(['65515', '101'])}>Windows+E</Menu.Item>
-            <Menu.Item key={'windows+r'}
-                       onClick={() => sendCombinationKey(['65515', '114'])}>Windows+R</Menu.Item>
-            <Menu.Item key={'windows+x'}
-                       onClick={() => sendCombinationKey(['65515', '120'])}>Windows+X</Menu.Item>
-            <Menu.Item key={'windows'}
-                       onClick={() => sendCombinationKey(['65515'])}>Windows</Menu.Item>
-        </Menu>
-    );
+    const hotKeyItems = [
+        {key: 'ctrl+alt+delete', label: 'Ctrl+Alt+Delete', onClick: () => sendCombinationKey(['65507', '65513', '65535'])},
+        {key: 'ctrl+alt+backspace', label: 'Ctrl+Alt+Backspace', onClick: () => sendCombinationKey(['65507', '65513', '65288'])},
+        {key: 'windows+d', label: 'Windows+D', onClick: () => sendCombinationKey(['65515', '100'])},
+        {key: 'windows+e', label: 'Windows+E', onClick: () => sendCombinationKey(['65515', '101'])},
+        {key: 'windows+r', label: 'Windows+R', onClick: () => sendCombinationKey(['65515', '114'])},
+        {key: 'windows+x', label: 'Windows+X', onClick: () => sendCombinationKey(['65515', '120'])},
+        {key: 'windows', label: 'Windows', onClick: () => sendCombinationKey(['65515'])},
+    ];
 
     return (
         <div>
@@ -483,7 +474,7 @@ const Guacd = () => {
                 protocol === 'vnc' &&
                 <Draggable>
                     <Affix style={{position: 'absolute', top: 100, right: 100}}>
-                        <Dropdown overlay={hotKeyMenu} trigger={['click']} placement="bottomLeft">
+                        <Dropdown menu={{items: hotKeyItems}} trigger={['click']} placement="bottomLeft">
                             <Button icon={<WindowsOutlined/>}/>
                         </Dropdown>
                     </Affix>
@@ -505,7 +496,7 @@ const Guacd = () => {
                 protocol === 'rdp' &&
                 <Draggable>
                     <Affix style={{position: 'absolute', top: 100, right: 100}}>
-                        <Dropdown overlay={hotKeyMenu} trigger={['click']} placement="bottomLeft">
+                        <Dropdown menu={{items: hotKeyItems}} trigger={['click']} placement="bottomLeft">
                             <Button icon={<WindowsOutlined/>}/>
                         </Dropdown>
                     </Affix>
@@ -521,7 +512,7 @@ const Guacd = () => {
                     focus();
                     setFileSystemVisible(false);
                 }}
-                visible={fileSystemVisible}
+                open={fileSystemVisible}
             >
                 <FileSystem
                     storageId={session['id']}
@@ -535,7 +526,7 @@ const Guacd = () => {
             </Drawer>
 
             <GuacdClipboard
-                visible={clipboardVisible}
+                open={clipboardVisible}
                 clipboardText={clipboardText}
                 handleOk={(text) => {
                     sendClipboard({

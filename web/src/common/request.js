@@ -18,7 +18,7 @@ const handleError = (error) => {
         return false;
     }
     if (error.response !== undefined) {
-        message.error(error.response.data.message);
+        message.error(error.response.data?.message || '请求失败');
         return false;
     }
     return true;

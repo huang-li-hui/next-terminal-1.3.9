@@ -1,10 +1,9 @@
 import React from 'react';
-import {Space, Tooltip} from "antd";
-import {DualAxes, Liquid} from '@ant-design/plots';
+import {Progress, Space, Tooltip} from "antd";
 import {ProCard, StatisticCard} from '@ant-design/pro-components';
 import dayjs from "dayjs";
 import {renderSize} from "../../utils/utils";
-import {Area} from "@ant-design/charts";
+import {Area, Line} from "@ant-design/charts";
 import './Monitoring.css'
 import {renderWeekDay} from "../../utils/week";
 import {useQuery} from "react-query";
@@ -48,6 +47,60 @@ const initData = {
     diskIO: [], netIO: [], cpuStat: [], memStat: [],
 }
 
+const areaConfig = (data, color) => ({
+    height: 170,
+    data: data,
+    xField: 'time',
+    yField: 'value',
+    shapeField: 'smooth',
+    style: {
+        fill: `linear-gradient(270deg, ${color} 0%, rgba(255,255,255,0) 100%)`,
+        fillOpacity: 0.3,
+        stroke: color,
+        lineWidth: 2,
+    },
+    axis: {
+        y: {
+            labelFormatter: (v) => `${v}%`,
+        },
+        x: {
+            labelFormatter: (v) => `${v}`.slice(0, 5),
+        },
+    },
+});
+
+const ioConfig = (data, readLabel, writeLabel) => ({
+    height: 170,
+    data: [
+        ...data.map(d => ({time: d.time, type: readLabel, value: Number(d.read.toFixed(2))})),
+        ...data.map(d => ({time: d.time, type: writeLabel, value: Number(d.write.toFixed(2))})),
+    ],
+    xField: 'time',
+    yField: 'value',
+    colorField: 'type',
+    color: ['#5B8FF9', '#2AAE67'],
+    smooth: true,
+    style: {
+        lineWidth: 2,
+    },
+    axis: {
+        y: {
+            labelFormatter: (v) => Number(v.toFixed(2)),
+        },
+    },
+});
+
+const progressProps = (percent, color) => ({
+    type: 'circle',
+    percent: Math.max(0, Math.min(Number(percent) * 100, 100)),
+    format: (p) => (Number.isFinite(p) ? `${p.toFixed(0)}%` : '-'),
+    size: 116,
+    strokeWidth: 9,
+    strokeLinecap: 'round',
+    strokeColor: {'0%': color, '100%': `${color}66`},
+    trailColor: `${color}1a`,
+});
+
 const Monitoring = () => {
 
     let monitorQuery = useQuery('getMonitorData', monitorApi.getData, {
@@ -58,190 +111,53 @@ const Monitoring = () => {
     let loadPercent = monitorQuery.data?.loadStat['percent'];
     let loadColor = '#5B8FF9';
     if (loadPercent > 0.9) {
-        loadColor = '#F4664A';
+        loadColor = '#F5222D';
     } else if (loadPercent > 0.8) {
-        loadColor = '#001D70';
-    } else if (loadPercent > 0.7) {
-        loadColor = '#0047A5';
+        loadColor = '#FA8C16';
+    }
+    if (loadPercent > 0.9) {
+        loadColor = '#F5222D';
+    } else if (loadPercent > 0.8) {
+        loadColor = '#FA8C16';
     }
 
-    const loadStatConfig = {
-        height: 100,
-        width: 100,
-        shape: function (x, y, width, height) {
-            const r = width / 4;
-            const dx = x - width / 2;
-            const dy = y - height / 2;
-            return [
-                ['M', dx, dy + r * 2],
-                ['A', r, r, 0, 0, 1, x, dy + r],
-                ['A', r, r, 0, 0, 1, dx + width, dy + r * 2],
-                ['L', x, dy + height],
-                ['L', dx, dy + r * 2],
-                ['Z'],
-            ];
-        },
-        percent: loadPercent,
-        outline: {
-            border: 4, distance: 4,
-        },
-        wave: {
-            length: 64,
-        },
-        theme: {
-            styleSheet: {
-                brandColor: loadColor,
-            },
-        },
-        statistic: {
-            title: false, content: false
-        },
-        pattern: {
-            type: 'square',
-        },
-    };
+    const loadStatConfig = progressProps(loadPercent, loadColor);
 
     let cpuPercent = monitorQuery.data?.cpu['usedPercent'] / 100;
-    let cpuColor = '#5B8FF9';
+    let cpuColor = '#2AAE67';
     if (cpuPercent > 0.9) {
-        cpuColor = '#F4664A';
+        cpuColor = '#F5222D';
     } else if (cpuPercent > 0.8) {
-        cpuColor = '#001D70';
+        cpuColor = '#FA8C16';
     }
-    const cpuStatConfig = {
-        height: 100,
-        width: 100,
-        shape: 'diamond',
-        percent: cpuPercent,
-        outline: {
-            border: 4, distance: 4,
-        },
-        wave: {
-            length: 64,
-        },
-        theme: {
-            styleSheet: {
-                brandColor: cpuColor,
-            },
-        },
-        pattern: {
-            type: 'line',
-        },
-        statistic: {
-            title: false, content: false
-        }
-    };
+    const cpuStatConfig = progressProps(cpuPercent, cpuColor);
 
     let memPercent = monitorQuery.data?.mem['usedPercent'] / 100;
-    let memColor = '#5B8FF9';
-    if (memPercent > 0.75) {
-        memColor = '#F4664A';
+    let memColor = '#9E6BFF';
+    if (memPercent > 0.9) {
+        memColor = '#F5222D';
+    } else if (memPercent > 0.75) {
+        memColor = '#FA8C16';
     }
 
-    const memStatConfig = {
-        height: 100,
-        width: 100,
-        percent: memPercent,
-        outline: {
-            border: 4, distance: 4,
-        },
-        wave: {
-            length: 64,
-        },
-        theme: {
-            styleSheet: {
-                brandColor: memColor,
-            },
-        },
-        statistic: {
-            title: false, content: false
-        },
-        pattern: {
-            type: 'dot',
-        },
-    };
+    const memStatConfig = progressProps(memPercent, memColor);
 
     let diskPercent = monitorQuery.data?.disk['usedPercent'] / 100;
-    let diskColor = '#5B8FF9';
+    let diskColor = '#13C2C2';
     if (diskPercent > 0.9) {
-        diskColor = '#F4664A';
+        diskColor = '#F5222D';
     } else if (diskPercent > 0.8) {
-        diskColor = '#001D70';
+        diskColor = '#FA8C16';
     }
 
-    const diskStatConfig = {
-        height: 100,
-        width: 100,
-        shape: 'rect',
-        percent: diskPercent,
-        outline: {
-            border: 4, distance: 4,
-        },
-        wave: {
-            length: 64,
-        },
-        theme: {
-            styleSheet: {
-                brandColor: diskColor,
-            },
-        },
-        pattern: {
-            type: 'line',
-        },
-        statistic: {
-            title: false, content: false
-        }
-    };
+    const diskStatConfig = progressProps(diskPercent, diskColor);
 
-    const diskIOConfig = {
-        height: 150,
-        data: [monitorQuery.data['diskIO'], monitorQuery.data['diskIO']],
-        xField: 'time',
-        yField: ['read', 'write'],
-        meta: {
-            read: {
-                alias: '读取（MB/s）',
-            }, write: {
-                alias: '写入（MB/s）'
-            }
-        },
-        geometryOptions: [{
-            geometry: 'line', color: '#5B8FF9', smooth: true,
-        }, {
-            geometry: 'line', color: '#5AD8A6', smooth: true,
-        },],
-    };
+    const diskIOConfig = ioConfig(monitorQuery.data['diskIO'], '读取（MB/s）', '写入（MB/s）');
+    const netIOConfig = ioConfig(monitorQuery.data['netIO'], '接收（MB/s）', '发送（MB/s）');
 
-    const netIOConfig = {
-        height: 150,
-        data: [monitorQuery.data['netIO'], monitorQuery.data['netIO']],
-        xField: 'time',
-        yField: ['read', 'write'],
-        meta: {
-            read: {
-                alias: '接收（MB/s）',
-            }, write: {
-                alias: '发送（MB/s）'
-            }
-        },
-        geometryOptions: [{
-            geometry: 'line', color: '#5B8FF9', smooth: true,
-        }, {
-            geometry: 'line', color: '#5AD8A6', smooth: true,
-        },],
-    };
+    const cpuConfig = areaConfig(monitorQuery.data['cpuStat'], '#5B8FF9');
 
-    const cpuConfig = {
-        height: 150, data: monitorQuery.data['cpuStat'], xField: 'time', yField: 'value', smooth: true, areaStyle: {
-            fill: '#d6e3fd',
-        },
-    };
-
-    const memConfig = {
-        height: 150, data: monitorQuery.data['memStat'], xField: 'time', yField: 'value', smooth: true, areaStyle: {
-            fill: '#d6e3fd',
-        },
-    };
+    const memConfig = areaConfig(monitorQuery.data['memStat'], '#9E6BFF');
 
     const cpuModelName = monitorQuery.data['cpu']['info'][0]['modelName'].length > 10 ? monitorQuery.data['cpu']['info'][0]['modelName'].substring(0, 10) + '...' : monitorQuery.data['cpu']['info'][0]['modelName'];
 
@@ -249,7 +165,7 @@ const Monitoring = () => {
         <div style={{margin: 16}}>
             <ProCard
                 title="系统监控"
-                extra={dayjs().format("YYYY[年]MM[月]DD[日]") + ' ' + renderWeekDay(dayjs().day())}
+                extra={dayjs().format("YYYY[年]MM[月]DD[日] HH:mm:ss") + ' ' + renderWeekDay(dayjs().day())}
                 split={'horizontal'}
                 headerBordered
                 bordered
@@ -267,7 +183,7 @@ const Monitoring = () => {
                                                value={monitorQuery.data['loadStat']['load15'].toFixed(2)}/>
                                 </Space>,
                             }}
-                            chart={<Liquid {...loadStatConfig} />}
+                            chart={<Progress {...loadStatConfig} />}
                             chartPlacement="left"
                         />
 
@@ -286,7 +202,7 @@ const Monitoring = () => {
                                     </Tooltip>
                                 </Space>,
                             }}
-                            chart={<Liquid {...cpuStatConfig} />}
+                            chart={<Progress {...cpuStatConfig} />}
                             chartPlacement="left"
                         />
                     </ProCard>
@@ -303,7 +219,7 @@ const Monitoring = () => {
                                     <Statistic title="已使用" value={renderSize(monitorQuery.data['mem']['used'])}/>
                                 </Space>,
                             }}
-                            chart={<Liquid {...memStatConfig} />}
+                            chart={<Progress {...memStatConfig} />}
                             chartPlacement="left"
                         />
 
@@ -319,7 +235,7 @@ const Monitoring = () => {
                                     <Statistic title="已使用" value={renderSize(monitorQuery.data['disk']['used'])}/>
                                 </Space>,
                             }}
-                            chart={<Liquid {...diskStatConfig} />}
+                            chart={<Progress {...diskStatConfig} />}
                             chartPlacement="left"
                         />
                     </ProCard>
@@ -336,10 +252,10 @@ const Monitoring = () => {
 
                 <ProCard split={'vertical'}>
                     <ProCard title="网络吞吐">
-                        <DualAxes onlyChangeData={true} {...netIOConfig} />
+                        <Line {...netIOConfig} />
                     </ProCard>
                     <ProCard title="磁盘IO">
-                        <DualAxes onlyChangeData={true} {...diskIOConfig} />
+                        <Line {...diskIOConfig} />
                     </ProCard>
 
                 </ProCard>

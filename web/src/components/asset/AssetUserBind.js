@@ -9,7 +9,7 @@ const formItemLayout = {
     wrapperCol: {span: 14},
 };
 
-const AssetUserBind = ({id, visible, handleOk, handleCancel, confirmLoading}) => {
+const AssetUserBind = ({id, open, handleOk, handleCancel, confirmLoading}) => {
     const [form] = Form.useForm();
 
     let [selectedUserIds, setSelectedUserIds] = useState([]);
@@ -31,12 +31,12 @@ const AssetUserBind = ({id, visible, handleOk, handleCancel, confirmLoading}) =>
             setStrategies(strategies);
         }
 
-        if (visible) {
+        if (open) {
             fetchData();
         } else {
             form.resetFields();
         }
-    }, [visible])
+    }, [open])
 
     let strategyOptions = strategies.map(item => {
         return {
@@ -56,9 +56,10 @@ const AssetUserBind = ({id, visible, handleOk, handleCancel, confirmLoading}) =>
     return (
         <Modal
             title={'用户授权'}
-            visible={visible}
+            open={open}
             maskClosable={false}
-            destroyOnClose={true}
+            forceRender
+            destroyOnHidden
             onOk={() => {
                 form
                     .validateFields()

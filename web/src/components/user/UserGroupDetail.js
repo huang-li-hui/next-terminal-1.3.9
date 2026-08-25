@@ -23,20 +23,14 @@ const UserGroupDetail = () => {
     return (
         <div>
             <div className="page-detail-warp">
-                <Tabs activeKey={activeKey} onChange={handleTagChange}>
-                    {
-                        hasMenu('user-group-detail') &&
-                        <Tabs.TabPane tab="基本信息" key="info">
-                            <UserGroupInfo active={activeKey === 'info'} id={id}/>
-                        </Tabs.TabPane>
-                    }
-                    {
-                        hasMenu('user-group-detail') &&
-                        <Tabs.TabPane tab="授权的资产" key="asset">
-                            <UserAsset active={activeKey === 'asset'} id={id} type={'userGroupId'}/>
-                        </Tabs.TabPane>
-                    }
-                </Tabs>
+                <Tabs activeKey={activeKey} onChange={handleTagChange}
+                          items={[
+                              ...(hasMenu('user-group-detail') ? [{key: 'info', label: '基本信息',
+                                  children: (<UserGroupInfo active={activeKey === 'info'} id={id}/>)}] : []),
+                              ...(hasMenu('user-group-detail') ? [{key: 'asset', label: '授权的资产',
+                                  children: (<UserAsset active={activeKey === 'asset'} id={id} type={'userGroupId'}/>)}] : []),
+                          ]}>
+                      </Tabs>
             </div>
         </div>
     );

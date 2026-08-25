@@ -49,7 +49,7 @@ const importExampleContent = <>
 </>
 
 const Asset = () => {
-    let [visible, setVisible] = useState(false);
+    let [open, setOpen] = useState(false);
     let [confirmLoading, setConfirmLoading] = useState(false);
     let [selectedRowKey, setSelectedRowKey] = useState(undefined);
     let [items, setItems] = useState([]);
@@ -254,7 +254,7 @@ const Asset = () => {
                         <a
                             key="edit"
                             onClick={() => {
-                                setVisible(true);
+                                setOpen(true);
                                 setSelectedRowKey(record['id']);
                             }}
                         >
@@ -281,7 +281,7 @@ const Asset = () => {
                             switch (key) {
                                 case "copy":
                                     setCopied(true);
-                                    setVisible(true);
+                                    setOpen(true);
                                     setSelectedRowKey(record['id']);
                                     break;
                                 case "test":
@@ -451,7 +451,7 @@ const Asset = () => {
                 return [
                     <Show menu={'asset-add'}>
                         <Button key="add" type="primary" onClick={() => {
-                            setVisible(true)
+                            setOpen(true)
                         }}>
                             新建
                         </Button>
@@ -503,10 +503,10 @@ const Asset = () => {
         <AssetModal
             id={selectedRowKey}
             copied={copied}
-            visible={visible}
+            open={open}
             confirmLoading={confirmLoading}
             handleCancel={() => {
-                setVisible(false);
+                setOpen(false);
                 setSelectedRowKey(undefined);
                 setCopied(false);
             }}
@@ -521,7 +521,7 @@ const Asset = () => {
                         success = await api.create(values);
                     }
                     if (success) {
-                        setVisible(false);
+                        setOpen(false);
                     }
                     actionRef.current.reload();
                 } finally {

@@ -723,7 +723,7 @@ class FileSystem extends Component {
                     this.state.mkdirVisible ?
                         <Modal
                             title="创建文件夹"
-                            visible={this.state.mkdirVisible}
+                            open={this.state.mkdirVisible}
                             okButtonProps={{form: 'mkdir-form', key: 'submit', htmlType: 'submit'}}
                             onOk={() => {
                                 this.mkdirFormRef.current
@@ -774,7 +774,7 @@ class FileSystem extends Component {
                     this.state.renameVisible ?
                         <Modal
                             title="重命名"
-                            visible={this.state.renameVisible}
+                            open={this.state.renameVisible}
                             okButtonProps={{form: 'rename-form', key: 'submit', htmlType: 'submit'}}
                             onOk={() => {
                                 this.renameFormRef.current
@@ -840,8 +840,8 @@ class FileSystem extends Component {
                 <Modal
                     title={"编辑 " + this.state.fileName}
                     className='modal-no-padding'
-                    visible={this.state.editorVisible}
-                    destroyOnClose={true}
+                    open={this.state.editorVisible}
+                    destroyOnHidden
                     width={window.innerWidth * 0.8}
                     centered={true}
                     okButtonProps={{form: 'rename-form', key: 'submit', htmlType: 'submit'}}

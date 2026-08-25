@@ -51,6 +51,7 @@ var DefaultMenu = []*model.Menu{
 	),
 	model.NewMenu("asset-conn-test", "连通性测试", "asset",
 		model.NewPermission("POST", "/assets/:id/tcping"),
+		model.NewPermission("POST", "/assets/ssh-test"),
 	),
 	model.NewMenu("asset-import", "导入资产", "asset",
 		model.NewPermission("POST", "/assets/import"),

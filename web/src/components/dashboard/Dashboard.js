@@ -106,24 +106,10 @@ class Dashboard extends Component {
             radius: 1,
             innerRadius: 0.6,
             label: {
-                type: 'inner',
-                offset: '-50%',
-                content: '{value}',
+                text: (d) => d.value,
                 style: {
                     textAlign: 'center',
                     fontSize: 14,
-                },
-            },
-            interactions: [{type: 'element-selected'}, {type: 'element-active'}],
-            statistic: {
-                title: false,
-                content: {
-                    formatter: () => {
-                        return '资产类型';
-                    },
-                    style: {
-                        fontSize: 18,
-                    }
                 },
             },
         };
@@ -133,17 +119,8 @@ class Dashboard extends Component {
             data: this.state.dateCounter,
             xField: 'date',
             yField: 'value',
-            seriesField: 'type',
-            legend: {
-                position: 'top',
-            },
+            colorField: 'type',
             smooth: true,
-            animation: {
-                appear: {
-                    animation: 'path-in',
-                    duration: 5000,
-                },
-            },
         };
 
         return (<>

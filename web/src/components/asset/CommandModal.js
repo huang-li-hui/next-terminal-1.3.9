@@ -7,7 +7,7 @@ const api = commandApi;
 const {TextArea} = Input;
 
 const CommandModal = ({
-                          visible,
+                          open,
                           handleOk,
                           handleCancel,
                           confirmLoading,
@@ -36,7 +36,7 @@ const CommandModal = ({
         }
 
 
-        if (visible) {
+        if (open) {
             if (id) {
                 getItem();
             } else {
@@ -45,15 +45,16 @@ const CommandModal = ({
         } else {
             form.resetFields();
         }
-    }, [visible]);
+    }, [open]);
 
     return (
 
         <Modal
             title={id ? '更新动态指令' : '新建动态指令'}
-            visible={visible}
+            open={open}
             maskClosable={false}
-            destroyOnClose={true}
+            forceRender
+            destroyOnHidden
             onOk={() => {
                 form
                     .validateFields()
@@ -74,8 +75,8 @@ const CommandModal = ({
         >
 
             <Form form={form} {...formItemLayout}>
-                <Form.Item name='id' noStyle>
-                    <Input hidden={true}/>
+                <Form.Item name='id' hidden>
+                    <Input/>
                 </Form.Item>
 
                 <Form.Item label="指令名称" name='name' rules={[{required: true, message: '请输入指令名称'}]}>

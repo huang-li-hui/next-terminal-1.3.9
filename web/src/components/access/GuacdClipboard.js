@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {Form, Input, Modal} from "antd";
 
-const GuacdClipboard = ({visible, clipboardText, handleOk, handleCancel}) => {
+const GuacdClipboard = ({open, clipboardText, handleOk, handleCancel}) => {
 
     const [form] = Form.useForm();
     let [confirmLoading, setConfirmLoading] = useState(false);
@@ -10,14 +10,14 @@ const GuacdClipboard = ({visible, clipboardText, handleOk, handleCancel}) => {
         form.setFieldsValue({
             'clipboard': clipboardText
         })
-    }, [visible]);
+    }, [open]);
 
     return (
         <div>
             <Modal
                 title="剪贴板"
                 maskClosable={false}
-                visible={visible}
+                open={open}
                 onOk={() => {
                     form.validateFields()
                         .then(values => {

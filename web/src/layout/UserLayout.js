@@ -1,6 +1,6 @@
 import React, {Suspense, useEffect} from 'react';
 import {Link, Outlet, useLocation, useNavigate} from "react-router-dom";
-import {Breadcrumb, Button, Dropdown, Layout, Menu, Popconfirm} from "antd";
+import {Breadcrumb, Button, Dropdown, Layout, Modal} from "antd";
 import {
     CodeOutlined,
     DashboardOutlined,
@@ -39,46 +39,38 @@ const UserLayout = () => {
 
     const extraBreadcrumbItems = pathSnippets.map((_, index) => {
         const url = `/${pathSnippets.slice(0, index + 1).join('/')}`;
-        return (
-            <Breadcrumb.Item key={url}>
-                <Link to={url}>{breadcrumbNameMap[url]}</Link>
-            </Breadcrumb.Item>
-        );
+        return {
+            key: url,
+            title: <Link to={url}>{breadcrumbNameMap[url]}</Link>,
+        };
     });
 
     const breadcrumbItems = [
-        <Breadcrumb.Item key="home">
-            <Link to="/my-asset">首页</Link>
-        </Breadcrumb.Item>,
+        {key: 'home', title: <Link to="/my-asset">首页</Link>},
     ].concat(extraBreadcrumbItems);
 
-    const menu = (
-        <Menu>
-            {
-                isAdmin() &&
-                <Menu.Item>
-                    <Link to={'/dashboard'}><DashboardOutlined/> 后台管理</Link>
-                </Menu.Item>
-            }
-
-            <Menu.Item>
-                <Popconfirm
-                    key='login-btn-pop'
-                    title="您确定要退出登录吗?"
-                    onConfirm={async ()=>{
+    const menuItems = [
+        ...(isAdmin() ? [{
+            key: 'dashboard',
+            label: <Link to={'/dashboard'}><DashboardOutlined/> 后台管理</Link>,
+        }] : []),
+        {
+            key: 'logout',
+            icon: <LogoutOutlined/>,
+            label: '退出登录',
+            onClick: () => {
+                Modal.confirm({
+                    title: '您确定要退出登录吗?',
+                    onOk: async () => {
                         await accountApi.logout();
                         navigate('/login');
-                    }}
-                    okText="确定"
-                    cancelText="取消"
-                    placement="left"
-                >
-                    <LogoutOutlined/> 退出登录
-                </Popconfirm>
-            </Menu.Item>
-
-        </Menu>
-    );
+                    },
+                    okText: '确定',
+                    cancelText: '取消',
+                });
+            },
+        },
+    ];
 
     return (
         <Layout className="layout" style={{minHeight: '100vh'}}>
@@ -112,7 +104,7 @@ const UserLayout = () => {
 
                     </div>
                     <div className='km-header-right'>
-                        <Dropdown overlay={menu}>
+                        <Dropdown menu={{items: menuItems}}>
                             <div className={'nickname layout-header-right-item'}>
                                 {getCurrentUser()['nickname']} &nbsp;<DownOutlined/>
                             </div>
@@ -123,7 +115,7 @@ const UserLayout = () => {
 
             <Content className='nt-container'>
                 <div style={{marginBottom: 16}}>
-                    <Breadcrumb>{breadcrumbItems}</Breadcrumb>
+                    <Breadcrumb items={breadcrumbItems}/>
                 </div>
                 <Suspense fallback={<Landing/>}>
                     <Outlet/>

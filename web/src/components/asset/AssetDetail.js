@@ -6,7 +6,6 @@ import AssetUser from "./AssetUser";
 import AssetUserGroup from "./AssetUserGroup";
 import {hasMenu} from "../../service/permission";
 
-const {TabPane} = Tabs;
 
 const AssetDetail = () => {
     let params = useParams();
@@ -24,27 +23,16 @@ const AssetDetail = () => {
 
     return (
         <div className="page-detail-warp">
-            <Tabs activeKey={activeKey} onChange={handleTagChange}>
-                {
-                    hasMenu('asset-detail') &&
-                    <TabPane tab="基本信息" key="info">
-                        <AssetInfo active={activeKey === 'info'} id={id}/>
-                    </TabPane>
-                }
-
-                {
-                    hasMenu('asset-authorised-user') &&
-                    <TabPane tab="授权的用户" key="bind-user">
-                        <AssetUser active={activeKey === 'bind-user'} id={id}/>
-                    </TabPane>
-                }
-                {
-                    hasMenu('asset-authorised-user-group') &&
-                    <TabPane tab="授权的用户组" key="bind-user-group">
-                        <AssetUserGroup active={activeKey === 'bind-user-group'} id={id}/>
-                    </TabPane>
-                }
-            </Tabs>
+            <Tabs activeKey={activeKey} onChange={handleTagChange}
+                      items={[
+                          ...(hasMenu('asset-detail') ? [{key: 'info', label: '基本信息',
+                              children: (<AssetInfo active={activeKey === 'info'} id={id}/>)}] : []),
+                          ...(hasMenu('asset-authorised-user') ? [{key: 'bind-user', label: '授权的用户',
+                              children: (<AssetUser active={activeKey === 'bind-user'} id={id}/>)}] : []),
+                          ...(hasMenu('asset-authorised-user-group') ? [{key: 'bind-user-group', label: '授权的用户组',
+                              children: (<AssetUserGroup active={activeKey === 'bind-user-group'} id={id}/>)}] : []),
+                      ]}>
+                  </Tabs>
         </div>
     );
 };

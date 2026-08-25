@@ -8,7 +8,7 @@ import strings from "../../utils/strings";
 const {TextArea} = Input;
 
 const JobModal = ({
-                      visible,
+                      open,
                       handleOk,
                       handleCancel,
                       confirmLoading,
@@ -21,7 +21,7 @@ const JobModal = ({
     let [mode, setMode] = useState('all');
 
     useQuery('getJobById', () => jobApi.getById(id), {
-        enabled: visible && strings.hasText(id),
+        enabled: open && strings.hasText(id),
         onSuccess: data => {
             if (data['func'] === 'shell-job') {
                 try {
@@ -57,9 +57,10 @@ const JobModal = ({
     return (
         <Modal
             title={id ? '更新计划任务' : '新建计划任务'}
-            visible={visible}
+            open={open}
             maskClosable={false}
-            destroyOnClose={true}
+            forceRender
+            destroyOnHidden
             onOk={() => {
                 form
                     .validateFields()
@@ -87,8 +88,8 @@ const JobModal = ({
                           mode: 'all',
                       }
                   }>
-                <Form.Item name='id' noStyle>
-                    <Input hidden={true}/>
+                <Form.Item name='id' hidden>
+                    <Input/>
                 </Form.Item>
 
                 <Form.Item label="任务类型" name='func' rules={[{required: true, message: '请选择任务类型'}]}>

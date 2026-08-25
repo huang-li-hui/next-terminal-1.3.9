@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {Form, Input, InputNumber, Modal, Select} from "antd";
+import {Form, Input, InputNumber, Modal, Radio} from "antd";
 import accessGatewayApi from "../../api/access-gateway";
 
 const formItemLayout = {
@@ -11,7 +11,7 @@ const {TextArea} = Input;
 const api = accessGatewayApi;
 
 const AccessGatewayModal = ({
-                                visible,
+                                open,
                                 handleOk,
                                 handleCancel,
                                 confirmLoading,
@@ -19,7 +19,18 @@ const AccessGatewayModal = ({
                             }) => {
 
     const [form] = Form.useForm();
+    let [type, setType] = useState('ssh');
     let [accountType, setAccountType] = useState('password');
+
+    const handleTypeChange = e => {
+        const v = e.target.value;
+        setType(v);
+        if (v === 'socks5') {
+            form.setFieldsValue({port: 1080});
+        } else {
+            form.setFieldsValue({port: 22});
+        }
+    }
 
     const handleAccountTypeChange = v => {
         setAccountType(v);
@@ -31,15 +42,17 @@ const AccessGatewayModal = ({
             let data = await api.getById(id);
             if (data) {
                 form.setFieldsValue(data);
+                setType(data['type'] || 'ssh');
                 setAccountType(data['accountType']);
             }
         }
 
-        if (visible) {
+        if (open) {
             if(id){
                 getItem();
             }else {
                 form.setFieldsValue({
+                    type: 'ssh',
                     accountType: 'password',
                     port: 22,
                 });
@@ -47,14 +60,15 @@ const AccessGatewayModal = ({
         } else {
             form.resetFields();
         }
-    }, [visible]);
+    }, [open]);
 
     return (
         <Modal
             title={id ? '更新接入网关' : '新建接入网关'}
-            visible={visible}
+            open={open}
             maskClosable={false}
-            destroyOnClose={true}
+            forceRender
+            destroyOnHidden
             onOk={() => {
                 form
                     .validateFields()
@@ -75,12 +89,19 @@ const AccessGatewayModal = ({
         >
 
             <Form form={form} {...formItemLayout}>
-                <Form.Item name='id' noStyle>
-                    <Input hidden={true}/>
+                <Form.Item name='id' hidden>
+                    <Input/>
                 </Form.Item>
 
                 <Form.Item label="网关名称" name='name' rules={[{required: true, message: "请输入网关名称"}]}>
                     <Input placeholder="网关名称"/>
+                </Form.Item>
+
+                <Form.Item label="网关类型" name='type' rules={[{required: true, message: '请选择网关类型'}]}>
+                    <Radio.Group onChange={handleTypeChange}>
+                        <Radio value="ssh">SSH隧道</Radio>
+                        <Radio value="socks5">SOCKS5</Radio>
+                    </Radio.Group>
                 </Form.Item>
 
                 <Form.Item label="主机" name='ip' rules={[{required: true, message: '请输入网关的主机名称或者IP地址'}]}>
@@ -91,41 +112,56 @@ const AccessGatewayModal = ({
                     <InputNumber min={1} max={65535} placeholder='TCP端口'/>
                 </Form.Item>
 
-                <Form.Item label="账户类型" name='accountType'
-                           rules={[{required: true, message: '请选择接账户类型'}]}>
-                    <Select onChange={handleAccountTypeChange}>
-                        <Select.Option key='password' value='password'>密码</Select.Option>
-                        <Select.Option key='private-key' value='private-key'>密钥</Select.Option>
-                    </Select>
-                </Form.Item>
-
                 {
-                    accountType === 'password' ?
+                    type === 'socks5' ?
                         <>
-                            <input type='password' hidden={true} autoComplete='new-password'/>
-                            <Form.Item label="授权账户" name='username'
-                                       rules={[{required: true}]}>
-                                <Input placeholder="root"/>
+                            <Form.Item label="用户名" name='username'>
+                                <Input placeholder="无认证时可留空"/>
                             </Form.Item>
 
-                            <Form.Item label="授权密码" name='password'
-                                       rules={[{required: true}]}>
-                                <Input.Password placeholder="password"/>
+                            <Form.Item label="密码" name='password'>
+                                <Input.Password placeholder="无认证时可留空" autoComplete="new-password"/>
                             </Form.Item>
                         </>
                         :
                         <>
-                            <Form.Item label="授权账户" name='username' rules={[{required: true}]}>
-                                <Input placeholder="输入授权账户"/>
+                            <Form.Item label="账户类型" name='accountType'
+                                       rules={[{required: true, message: '请选择接账户类型'}]}>
+                                <Radio.Group onChange={e => handleAccountTypeChange(e.target.value)}>
+                                    <Radio value='password'>密码</Radio>
+                                    <Radio value='private-key'>密钥</Radio>
+                                </Radio.Group>
                             </Form.Item>
 
-                            <Form.Item label="私钥" name='privateKey'
-                                       rules={[{required: true, message: '请输入私钥'}]}>
-                                <TextArea rows={4}/>
-                            </Form.Item>
-                            <Form.Item label="私钥密码" name='passphrase'>
-                                <TextArea rows={1}/>
-                            </Form.Item>
+                            {
+                                accountType === 'password' ?
+                                    <>
+                                        <input type='password' hidden={true} autoComplete='new-password'/>
+                                        <Form.Item label="授权账户" name='username'
+                                                   rules={[{required: true}]}>
+                                            <Input placeholder="root"/>
+                                        </Form.Item>
+
+                                        <Form.Item label="授权密码" name='password'
+                                                   rules={[{required: true}]}>
+                                            <Input.Password placeholder="password"/>
+                                        </Form.Item>
+                                    </>
+                                    :
+                                    <>
+                                        <Form.Item label="授权账户" name='username' rules={[{required: true}]}>
+                                            <Input placeholder="输入授权账户"/>
+                                        </Form.Item>
+
+                                        <Form.Item label="私钥" name='privateKey'
+                                                   rules={[{required: true, message: '请输入私钥'}]}>
+                                            <TextArea rows={4}/>
+                                        </Form.Item>
+                                        <Form.Item label="私钥密码" name='passphrase'>
+                                            <TextArea rows={1}/>
+                                        </Form.Item>
+                                    </>
+                            }
                         </>
                 }
             </Form>

@@ -10,7 +10,7 @@ const actionRef = React.createRef();
 
 const AssetUserGroup = ({id, active}) => {
 
-    let [visible, setVisible] = useState(false);
+    let [open, setOpen] = useState(false);
     let [confirmLoading, setConfirmLoading] = useState(false);
 
     useEffect(() => {
@@ -109,7 +109,7 @@ const AssetUserGroup = ({id, active}) => {
                 toolBarRender={() => [
                     <Show menu={'asset-authorised-user-group-add'} key={'bind-acc'}>
                         <Button key="button" type="primary" onClick={() => {
-                            setVisible(true);
+                            setOpen(true);
                         }}>
                             授权
                         </Button>
@@ -120,10 +120,10 @@ const AssetUserGroup = ({id, active}) => {
 
             <AssetUserGroupBind
                 id={id}
-                visible={visible}
+                open={open}
                 confirmLoading={confirmLoading}
                 handleCancel={() => {
-                    setVisible(false);
+                    setOpen(false);
                 }}
                 handleOk={async (values) => {
                     setConfirmLoading(true);
@@ -131,7 +131,7 @@ const AssetUserGroup = ({id, active}) => {
                     try {
                         let success = authorisedApi.AuthorisedUserGroups(values);
                         if (success) {
-                            setVisible(false);
+                            setOpen(false);
                         }
                         actionRef.current.reload();
                     } finally {

@@ -15,7 +15,7 @@ const actionRef = React.createRef();
 
 const LoginPolicy = () => {
 
-    let [visible, setVisible] = useState(false);
+    let [open, setOpen] = useState(false);
     let [confirmLoading, setConfirmLoading] = useState(false);
     let [selectedRowKey, setSelectedRowKey] = useState(undefined);
 
@@ -67,7 +67,7 @@ const LoginPolicy = () => {
                     <a
                         key="edit"
                         onClick={() => {
-                            setVisible(true);
+                            setOpen(true);
                             setSelectedRowKey(record['id']);
                         }}
                     >
@@ -137,7 +137,7 @@ const LoginPolicy = () => {
                     toolBarRender={() => [
                         <Show menu={'login-policy-add'}>
                             <Button key="button" type="primary" onClick={() => {
-                                setVisible(true)
+                                setOpen(true)
                             }}>
                                 新建
                             </Button>
@@ -147,10 +147,10 @@ const LoginPolicy = () => {
 
                 <LoginPolicyModal
                     id={selectedRowKey}
-                    visible={visible}
+                    open={open}
                     confirmLoading={confirmLoading}
                     handleCancel={() => {
-                        setVisible(false);
+                        setOpen(false);
                         setSelectedRowKey(undefined);
                     }}
                     handleOk={async (values) => {
@@ -164,7 +164,7 @@ const LoginPolicy = () => {
                                 success = await api.create(values);
                             }
                             if (success) {
-                                setVisible(false);
+                                setOpen(false);
                             }
                             actionRef.current.reload();
                         } finally {

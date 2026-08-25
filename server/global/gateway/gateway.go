@@ -16,6 +16,7 @@ import (
 // Gateway 接入网关
 type Gateway struct {
 	ID         string // 接入网关ID
+	Type       string // 网关类型：ssh / socks5
 	IP         string
 	Port       int
 	Username   string
@@ -102,4 +103,14 @@ func (g *Gateway) Close() {
 	for id := range g.tunnels {
 		g.CloseSshTunnel(id)
 	}
+}
+
+// IsSocks5 是否为 SOCKS5 代理型网关
+func (g *Gateway) IsSocks5() bool {
+	return g.Type == "socks5"
+}
+
+// Socks5ProxyInfo 返回 SOCKS5 代理的连接信息（代理地址与认证信息）
+func (g *Gateway) Socks5ProxyInfo() (host string, port string, username string, password string) {
+	return g.IP, fmt.Sprintf("%d", g.Port), g.Username, g.Password
 }

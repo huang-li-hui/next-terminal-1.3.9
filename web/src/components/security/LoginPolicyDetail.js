@@ -5,7 +5,6 @@ import LoginPolicyInfo from "./LoginPolicyInfo";
 import LoginPolicyUser from "./LoginPolicyUser";
 import LoginPolicyUserGroup from "./LoginPolicyUserGroup";
 
-const {TabPane} = Tabs;
 
 const LoginPolicyDetail = () => {
     let params = useParams();
@@ -23,16 +22,12 @@ const LoginPolicyDetail = () => {
 
     return (
         <div className="page-detail-warp">
-            <Tabs activeKey={activeKey} onChange={handleTagChange}>
-                <TabPane tab="基本信息" key="info">
-                    <LoginPolicyInfo active={activeKey === 'info'} id={loginPolicyId}/>
-                </TabPane>
-                <TabPane tab="绑定用户" key="bind-user">
-                    <LoginPolicyUser active={activeKey === 'bind-user'} loginPolicyId={loginPolicyId}/>
-                </TabPane>
-                <TabPane tab="绑定用户组" key="bind-user-group">
-                    <LoginPolicyUserGroup active={activeKey === 'bind-user-group'} loginPolicyId={loginPolicyId}/>
-                </TabPane>
+            <Tabs activeKey={activeKey} onChange={handleTagChange}
+items={[
+                    {key: 'info', label: '基本信息', children: (<LoginPolicyInfo active={activeKey === 'info'} id={loginPolicyId}/>)},
+                    {key: 'bind-user', label: '绑定用户', children: (<LoginPolicyUser active={activeKey === 'bind-user'} loginPolicyId={loginPolicyId}/>)},
+                    {key: 'bind-user-group', label: '绑定用户组', children: (<LoginPolicyUserGroup active={activeKey === 'bind-user-group'} loginPolicyId={loginPolicyId}/>)}
+                ]}>
             </Tabs>
         </div>
     );

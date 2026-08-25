@@ -26,7 +26,7 @@ export const itemRender = function (route, params, routes, paths) {
     );
 }
 
-export const formatDate = function (time, format) {
+export const formatDate = function (time, format = 'yyyy-MM-dd hh:mm:ss') {
     let date = new Date(time);
     let o = {
         "M+": date.getMonth() + 1,

@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {Form, Input, InputNumber, Modal, Select, Switch} from "antd";
+import {Form, Input, InputNumber, Modal, Select, Space, Switch} from "antd";
 import storageApi from "../../api/storage";
 import {renderSize} from "../../utils/utils";
 import {useQuery} from "react-query";
@@ -11,7 +11,7 @@ const formItemLayout = {
 };
 
 const StorageModal = ({
-                          visible,
+                          open,
                           handleOk,
                           handleCancel,
                           confirmLoading,
@@ -21,7 +21,7 @@ const StorageModal = ({
     const [form] = Form.useForm();
 
     useQuery('getStorageById', () => storageApi.getById(id), {
-        enabled: visible && strings.hasText(id),
+        enabled: open && strings.hasText(id),
         onSuccess: data => {
             if (data['limitSize'] > 0) {
                 let limitSize = renderSize(data['limitSize']);
@@ -56,9 +56,10 @@ const StorageModal = ({
     return (
         <Modal
             title={id ? '更新磁盘空间' : '新建磁盘空间'}
-            visible={visible}
+            open={open}
             maskClosable={false}
-            destroyOnClose={true}
+            forceRender
+            destroyOnHidden
             onOk={() => {
                 form
                     .validateFields()
@@ -109,8 +110,8 @@ const StorageModal = ({
         >
 
             <Form form={form} {...formItemLayout}>
-                <Form.Item name='id' noStyle>
-                    <Input hidden={true}/>
+                <Form.Item name='id' hidden>
+                    <Input/>
                 </Form.Item>
 
                 <Form.Item label="名称" name='name' rules={[{required: true, message: '请输入名称'}]}>
@@ -124,7 +125,10 @@ const StorageModal = ({
 
                 <Form.Item label="大小限制" name='limitSize' rules={[{required: true, message: '请输入大小限制'}]}
                            tooltip='无限制请填写-1'>
-                    <InputNumber min={-1} addonAfter={selectAfter} style={{width: 275}}/>
+                    <Space.Compact>
+                        <InputNumber min={-1} style={{width: 210}}/>
+                        {selectAfter}
+                    </Space.Compact>
                 </Form.Item>
 
             </Form>

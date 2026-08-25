@@ -12,7 +12,7 @@ const formItemLayout = {
 };
 
 const UserGroupModal = ({
-                            visible,
+                            open,
                             handleOk,
                             handleCancel,
                             confirmLoading,
@@ -22,7 +22,7 @@ const UserGroupModal = ({
     const [form] = Form.useForm();
 
     useQuery('userGroupQuery', () => api.getById(id), {
-        enabled: visible && strings.hasText(id),
+        enabled: open && strings.hasText(id),
         onSuccess: (data) => {
             data.members = data.members.map(item => item.id);
             form.setFieldsValue(data);
@@ -30,7 +30,7 @@ const UserGroupModal = ({
     });
 
     let usersQuery = useQuery('usersQuery', userApi.getAll, {
-        enabled: visible,
+        enabled: open,
     });
 
     let users = usersQuery.data || [];
@@ -38,9 +38,10 @@ const UserGroupModal = ({
     return (
         <Modal
             title={id ? '更新用户组' : '新建用户组'}
-            visible={visible}
+            open={open}
             maskClosable={false}
-            destroyOnClose={true}
+            forceRender
+            destroyOnHidden
             onOk={() => {
                 form
                     .validateFields()
@@ -61,8 +62,8 @@ const UserGroupModal = ({
         >
 
             <Form form={form} {...formItemLayout}>
-                <Form.Item name='id' noStyle>
-                    <Input hidden={true}/>
+                <Form.Item name='id' hidden>
+                    <Input/>
                 </Form.Item>
 
                 <Form.Item label="名称" name='name' rules={[{required: true, message: '请输入用户组名称'}]}>

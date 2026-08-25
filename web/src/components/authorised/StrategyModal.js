@@ -9,7 +9,7 @@ const formItemLayout = {
     wrapperCol: {span: 14},
 };
 
-const StrategyModal = ({visible, handleOk, handleCancel, confirmLoading, id}) => {
+const StrategyModal = ({open, handleOk, handleCancel, confirmLoading, id}) => {
 
     const [form] = Form.useForm();
 
@@ -21,7 +21,7 @@ const StrategyModal = ({visible, handleOk, handleCancel, confirmLoading, id}) =>
                 form.setFieldsValue(data);
             }
         }
-        if (visible && id) {
+        if (open && id) {
             getItem();
         } else {
             form.setFieldsValue({
@@ -34,14 +34,15 @@ const StrategyModal = ({visible, handleOk, handleCancel, confirmLoading, id}) =>
                 paste: false,
             });
         }
-    }, [visible]);
+    }, [open]);
 
     return (
         <Modal
             title={id ? '更新授权策略' : '新建授权策略'}
-            visible={visible}
+            open={open}
             maskClosable={false}
-            destroyOnClose={true}
+            forceRender
+            destroyOnHidden
             onOk={() => {
                 form
                     .validateFields()
@@ -62,8 +63,8 @@ const StrategyModal = ({visible, handleOk, handleCancel, confirmLoading, id}) =>
         >
 
             <Form form={form} {...formItemLayout}>
-                <Form.Item name='id' noStyle>
-                    <Input hidden={true}/>
+                <Form.Item name='id' hidden>
+                    <Input/>
                 </Form.Item>
 
                 <Form.Item label="名称" name='name' rules={[{required: true, message: '请输入名称'}]}>

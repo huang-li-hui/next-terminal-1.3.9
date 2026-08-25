@@ -5,7 +5,7 @@ import userApi from "../../api/user";
 
 const actionRef = React.createRef();
 
-const LoginPolicyBind = ({visible, loginPolicyId}) => {
+const LoginPolicyBind = ({open, loginPolicyId}) => {
 
     let [bindKeys, setBindKeys] = useState([]);
 
@@ -15,7 +15,7 @@ const LoginPolicyBind = ({visible, loginPolicyId}) => {
             setBindKeys(ids);
         }
         x();
-    }, [visible]);
+    }, [open]);
 
     const handleBind = async (userId) => {
         await loginPolicyApi.Bind(loginPolicyId, [{'userId': userId}]);

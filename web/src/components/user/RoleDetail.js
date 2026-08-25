@@ -20,10 +20,10 @@ const RoleDetail = () => {
     return (
         <div>
             <div className="page-detail-warp">
-                <Tabs activeKey={activeKey} onChange={handleTagChange}>
-                    <Tabs.TabPane tab="基本信息" key="info">
-                        <RoleInfo active={activeKey === 'info'} id={id}/>
-                    </Tabs.TabPane>
+                <Tabs activeKey={activeKey} onChange={handleTagChange}
+items={[
+                        {key: 'info', label: '基本信息', children: (<RoleInfo active={activeKey === 'info'} id={id}/>)}
+                    ]}>
                 </Tabs>
             </div>
         </div>

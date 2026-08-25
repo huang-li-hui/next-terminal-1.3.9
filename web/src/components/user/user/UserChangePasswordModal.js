@@ -2,7 +2,7 @@ import React from 'react';
 import {Form, Input, Modal} from "antd";
 import {LockOutlined} from "@ant-design/icons";
 
-const UserChangePasswordModal = ({visible, handleOk, handleCancel, confirmLoading}) => {
+const UserChangePasswordModal = ({open, handleOk, handleCancel, confirmLoading}) => {
 
     const [form] = Form.useForm();
 
@@ -10,9 +10,10 @@ const UserChangePasswordModal = ({visible, handleOk, handleCancel, confirmLoadin
         <div>
             <Modal
                 title="修改密码"
-                visible={visible}
+                open={open}
                 maskClosable={false}
-                destroyOnClose={true}
+            forceRender
+                destroyOnHidden
                 onOk={() => {
                     form
                         .validateFields()

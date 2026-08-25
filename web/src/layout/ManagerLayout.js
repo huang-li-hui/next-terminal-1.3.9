@@ -1,5 +1,5 @@
 import React, {Suspense, useEffect, useState} from 'react';
-import {Breadcrumb, Dropdown, Layout, Menu, Popconfirm} from "antd";
+import {Breadcrumb, Dropdown, Layout, Menu, Modal} from "antd";
 import {BugTwoTone, DesktopOutlined, DownOutlined, LogoutOutlined} from "@ant-design/icons";
 import {Link, Outlet, useLocation, useNavigate} from "react-router-dom";
 import {getCurrentUser, isAdmin} from "../service/permission";
@@ -76,17 +76,14 @@ const ManagerLayout = () => {
                 }
             }
         }
-        return (
-            <Breadcrumb.Item key={url}>
-                <Link to={url}>{label}</Link>
-            </Breadcrumb.Item>
-        );
+        return {
+            key: url,
+            title: <Link to={url}>{label}</Link>,
+        };
     });
 
     const breadcrumbItems = [
-        <Breadcrumb.Item key="home">
-            <Link to="/">首页</Link>
-        </Breadcrumb.Item>,
+        {key: 'home', title: <Link to="/">首页</Link>},
     ].concat(extraBreadcrumbItems);
 
     const onCollapse = () => {
@@ -107,31 +104,32 @@ const ManagerLayout = () => {
         sessionStorage.setItem('openKeys', JSON.stringify(openKeys));
     }
 
-    const menu = (
-        <Menu>
-            <Menu.Item>
-                <Link to={'/my-asset'}><DesktopOutlined/> 我的资产</Link>
-            </Menu.Item>
-            {isAdmin() && <Menu.Item>
-                <a href='/debug/pprof/' target='_blank' rel='noreferrer'><BugTwoTone/> DEBUG</a>
-            </Menu.Item>}
-            <Menu.Item>
-                <Popconfirm
-                    key='login-btn-pop'
-                    title="您确定要退出登录吗?"
-                    onConfirm={async () => {
+    const menuItems = [
+        {
+            key: 'my-asset',
+            label: <Link to={'/my-asset'}><DesktopOutlined/> 我的资产</Link>,
+        },
+        ...(isAdmin() ? [{
+            key: 'debug',
+            label: <a href='/debug/pprof/' target='_blank' rel='noreferrer'><BugTwoTone/> DEBUG</a>,
+        }] : []),
+        {
+            key: 'logout',
+            icon: <LogoutOutlined/>,
+            label: '退出登录',
+            onClick: () => {
+                Modal.confirm({
+                    title: '您确定要退出登录吗?',
+                    onOk: async () => {
                         await accountApi.logout();
                         navigate('/login');
-                    }}
-                    okText="确定"
-                    cancelText="取消"
-                    placement="left"
-                >
-                    <LogoutOutlined/> 退出登录
-                </Popconfirm>
-            </Menu.Item>
-        </Menu>
-    );
+                    },
+                    okText: '确定',
+                    cancelText: '取消',
+                });
+            },
+        },
+    ];
 
     return (
         <Layout className="layout" style={{minHeight: '100vh'}}>
@@ -173,12 +171,12 @@ const ManagerLayout = () => {
                     <div className='layout-header'>
                         <div className='layout-header-left'>
                             <div>
-                                <Breadcrumb>{breadcrumbItems}</Breadcrumb>
+                                <Breadcrumb items={breadcrumbItems}/>
                             </div>
                         </div>
 
                         <div className='layout-header-right'>
-                            <Dropdown overlay={menu}>
+                            <Dropdown menu={{items: menuItems}}>
                                 <div className='nickname layout-header-right-item'>
                                     {getCurrentUser()['nickname']} &nbsp;<DownOutlined/>
                                 </div>

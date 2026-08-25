@@ -58,6 +58,18 @@ func checkOrigin(r *http.Request) bool {
 		return true
 	}
 
+	// 本机地址（localhost/127.0.0.1）允许不同端口，方便前后端分离本地开发
+	originHostname := originURL.Hostname()
+	if originHostname == "localhost" || originHostname == "127.0.0.1" || originHostname == "::1" {
+		reqHostname := r.Host
+		if idx := strings.LastIndex(reqHostname, ":"); idx != -1 {
+			reqHostname = reqHostname[:idx]
+		}
+		if reqHostname == "localhost" || reqHostname == "127.0.0.1" || reqHostname == "::1" {
+			return true
+		}
+	}
+
 	// 检查配置中是否允许的域名
 	// 这里可以扩展为从配置文件读取允许的域名列表
 	allowedHosts := getAllowedHosts()

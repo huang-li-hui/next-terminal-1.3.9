@@ -10,6 +10,7 @@ import (
 
 	"next-terminal/server/common/maps"
 	"next-terminal/server/common/nt"
+	"next-terminal/server/common/term"
 	"next-terminal/server/model"
 	"next-terminal/server/repository"
 	"next-terminal/server/service"
@@ -216,6 +217,90 @@ func (assetApi AssetApi) AssetTcpingEndpoint(c echo.Context) (err error) {
 		"active":  active,
 		"message": message,
 	})
+}
+
+func (assetApi AssetApi) AssetSshTestEndpoint(c echo.Context) error {
+	m := maps.Map{}
+	if err := c.Bind(&m); err != nil {
+		return err
+	}
+	str := func(key string) string {
+		if v, ok := m[key].(string); ok {
+			return v
+		}
+		return ""
+	}
+	port := 22
+	if v, ok := m["port"].(float64); ok {
+		port = int(v)
+	}
+	ip := str("ip")
+	if ip == "" {
+		return errors.New("主机地址不能为空")
+	}
+
+	gatewayId := str("accessGatewayId")
+	useSocksGateway := false
+	var socksHost, socksPort, socksUser, socksPass string
+	if gatewayId != "" && gatewayId != "-" {
+		g, err := service.GatewayService.GetGatewayById(gatewayId)
+		if err != nil {
+			return Success(c, maps.Map{"active": false, "authOk": false, "message": "获取接入网关失败：" + err.Error()})
+		}
+		if g.IsSocks5() {
+			useSocksGateway = true
+			socksHost, socksPort, socksUser, socksPass = g.Socks5ProxyInfo()
+		} else {
+			tunnelId := utils.UUID()
+			defer g.CloseSshTunnel(tunnelId)
+			exposedIP, exposedPort, err := g.OpenSshTunnel(tunnelId, ip, port)
+			if err != nil {
+				return Success(c, maps.Map{"active": false, "authOk": false, "message": "创建隧道失败：" + err.Error()})
+			}
+			ip, port = exposedIP, exposedPort
+		}
+	}
+
+	username, password, privateKey, passphrase := str("username"), str("password"), str("privateKey"), str("passphrase")
+	if str("accountType") == "credential" {
+		credentialId := str("credentialId")
+		if credentialId == "" {
+			return Success(c, maps.Map{"active": true, "authOk": false, "message": "请先选择授权凭证"})
+		}
+		credential, err := service.CredentialService.FindByIdAndDecrypt(context.TODO(), credentialId)
+		if err != nil {
+			return Success(c, maps.Map{"active": true, "authOk": false, "message": "获取授权凭证失败：" + err.Error()})
+		}
+		if credential.Type == nt.Custom {
+			username, password = credential.Username, credential.Password
+		} else {
+			username, privateKey, passphrase = credential.Username, credential.PrivateKey, credential.Passphrase
+		}
+	}
+
+	if useSocksGateway {
+		sshClient, err := term.NewSshClientUseSocks(ip, port, username, password, privateKey, passphrase, socksHost, socksPort, socksUser, socksPass)
+		if err != nil {
+			return Success(c, maps.Map{"active": false, "authOk": false, "message": "经SOCKS5网关连接失败：" + err.Error()})
+		}
+		_ = sshClient.Close()
+		return Success(c, maps.Map{"active": true, "authOk": true, "message": "连接成功（经SOCKS5网关）"})
+	}
+
+	if active, err := utils.Tcping(ip, port); err != nil || !active {
+		message := "端口不通"
+		if err != nil {
+			message = err.Error()
+		}
+		return Success(c, maps.Map{"active": false, "authOk": false, "message": message})
+	}
+
+	sshClient, err := term.NewSshClient(ip, port, username, password, privateKey, passphrase)
+	if err != nil {
+		return Success(c, maps.Map{"active": true, "authOk": false, "message": "认证失败：" + err.Error()})
+	}
+	_ = sshClient.Close()
+	return Success(c, maps.Map{"active": true, "authOk": true, "message": "连接成功"})
 }
 
 func (assetApi AssetApi) AssetTagsEndpoint(c echo.Context) (err error) {

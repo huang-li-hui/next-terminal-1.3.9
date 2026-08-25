@@ -9,7 +9,7 @@ import Show from "../../../dd/fi/show";
 const actionRef = React.createRef();
 
 const UserAsset = ({active, id, type}) => {
-    let [visible, setVisible] = useState(false);
+    let [open, setOpen] = useState(false);
     let [confirmLoading, setConfirmLoading] = useState(false);
 
     useEffect(() => {
@@ -108,7 +108,7 @@ const UserAsset = ({active, id, type}) => {
                 toolBarRender={() => [
                     <Show menu={['user-bind-asset', 'user-group-bind-asset']}>
                         <Button key="button" type="primary" onClick={() => {
-                            setVisible(true);
+                            setOpen(true);
                         }}>
                             授权
                         </Button>
@@ -119,10 +119,10 @@ const UserAsset = ({active, id, type}) => {
             <UserAuthorised
                 type={type}
                 id={id}
-                visible={visible}
+                open={open}
                 confirmLoading={confirmLoading}
                 handleCancel={() => {
-                    setVisible(false);
+                    setOpen(false);
                 }}
                 handleOk={async (values) => {
                     setConfirmLoading(true);
@@ -130,7 +130,7 @@ const UserAsset = ({active, id, type}) => {
                     try {
                         let success = authorisedApi.AuthorisedAssets(values);
                         if (success) {
-                            setVisible(false);
+                            setOpen(false);
                         }
                         actionRef.current.reload();
                     } finally {
