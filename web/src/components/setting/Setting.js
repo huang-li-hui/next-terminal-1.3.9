@@ -3,7 +3,6 @@ import {Alert, Button, Form, Input, message, Select, Space, Switch, Tabs, Typogr
 import request from "../../common/request";
 import {download, getToken} from "../../utils/utils";
 import {server} from "../../common/env";
-import {GetLicense, GetMachineId} from "../../api/license";
 import dayjs from "dayjs";
 
 const {Option} = Select;
@@ -24,13 +23,7 @@ class Setting extends Component {
 
     state = {
         refs: [],
-        properties: {},
-        ldapUserSyncLoading: false,
-        license: {
-            name: '免费版',
-            expired: undefined
-        },
-        machineId: ''
+        properties: {}
     }
 
     rdpSettingFormRef = React.createRef();
@@ -82,7 +75,7 @@ class Setting extends Component {
                 if (properties[key] === '-') {
                     properties[key] = '';
                 }
-                if (key.startsWith('enable') || key.startsWith("disable" || key === 'swap-red-blue')) {
+                if (key.startsWith('enable') || key.startsWith('disable') || key === 'swap-red-blue') {
                     properties[key] = properties[key].bool();
                 }
             }
@@ -102,28 +95,7 @@ class Setting extends Component {
     }
 
     handleOnTabChange = (key) => {
-        if (key === 'license') {
-            this.getMachineId();
-            this.getLicense();
-        } else {
-            this.getProperties();
-        }
-    }
-
-    getLicense = async () => {
-        let data = await GetLicense();
-        if (data) {
-            this.setState({
-                license: data
-            })
-        }
-    }
-
-    getMachineId = async () => {
-        let data = await GetMachineId();
-        this.setState({
-            machineId: data
-        })
+        this.getProperties();
     }
 
     handleImport = () => {
@@ -153,46 +125,6 @@ class Setting extends Component {
             }
         };
         reader.readAsText(files[0]);
-    }
-
-    ldapUserSync = async () => {
-        const id = 'ldap-user-sync'
-        try {
-            this.setState({
-                ldapUserSyncLoading: true
-            });
-            message.info({content: '同步中...', key: id, duration: 5});
-            let result = await request.post(`/properties/ldap-user-sync`);
-            if (result.code !== 1) {
-                message.error({content: result.message, key: id, duration: 10});
-                return;
-            }
-            message.success({content: '同步成功。', key: id, duration: 3});
-        } finally {
-            this.setState({
-                ldapUserSyncLoading: false
-            });
-        }
-    }
-
-    handleImportLicense = () => {
-        let files = window.document.getElementById('import-license').files;
-        if (files.length === 0) {
-            return;
-        }
-        let file = files[0];
-        const reader = new FileReader();
-        reader.onload = async () => {
-            // 当读取完成时，内容只在`reader.result`中
-            let license = reader.result;
-            let result = await request.post('/license', {'license': license});
-            if (result['code'] !== 1) {
-                message.error(result['message']);
-            } else {
-                this.getLicense();
-            }
-        };
-        reader.readAsText(file, 'utf-8');
     }
 
     render() {

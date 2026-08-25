@@ -17,7 +17,6 @@ class columnState {
     USER = 'cs-user';
     ROLE = 'cs-role';
     USER_GROUP = 'cs-user-group';
-    COMMAND_FILTER = 'cs-command-filter';
     STRATEGY = 'cs-strategy';
 }
 

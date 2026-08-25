@@ -20,7 +20,7 @@ const LoginPolicyBind = ({visible, loginPolicyId}) => {
     const handleBind = async (userId) => {
         await loginPolicyApi.Bind(loginPolicyId, [{'userId': userId}]);
         bindKeys.push(userId);
-        setBindKeys(bindKeys);
+        setBindKeys([...bindKeys]);
         actionRef.current.reload();
     }
 
@@ -86,7 +86,9 @@ const LoginPolicyBind = ({visible, loginPolicyId}) => {
                     let queryParams = {
                         pageIndex: params.current,
                         pageSize: params.pageSize,
-                        name: params.name,
+                        username: params.username,
+                        nickname: params.nickname,
+                        mail: params.mail,
                         field: field,
                         order: order
                     }

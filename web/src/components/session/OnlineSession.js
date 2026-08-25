@@ -194,6 +194,9 @@ const OnlineSession = () => {
                     pageIndex: params.current,
                     pageSize: params.pageSize,
                     protocol: params.protocol,
+                    clientIp: params.clientIp,
+                    userId: params.creatorName,
+                    assetId: params.assetName,
                     field: field,
                     order: order,
                     status: 'connected'

@@ -7,13 +7,19 @@ class SessionApi extends Api {
         super("sessions");
     }
 
-    GetCommandPagingBySessionId = async (sessionId, params) => {
-        let paramsStr = qs.stringify(params);
-        let result = await request.get(`/${this.group}/${sessionId}/commands/paging?${paramsStr}`);
-        if (result['code'] !== 1) {
-            return {};
-        }
-        return result['data'];
+    reviewed = async (ids) => {
+        const result = await request.post(`/${this.group}/${ids}/reviewed`);
+        return result['code'] === 1;
+    }
+
+    unreviewed = async (ids) => {
+        const result = await request.post(`/${this.group}/${ids}/unreviewed`);
+        return result['code'] === 1;
+    }
+
+    reviewedAll = async () => {
+        const result = await request.post(`/${this.group}/reviewed`);
+        return result['code'] === 1;
     }
 
     create = async (assetsId, mode) => {

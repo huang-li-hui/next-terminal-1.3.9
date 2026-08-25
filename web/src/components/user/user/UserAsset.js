@@ -84,7 +84,7 @@ const UserAsset = ({active, id, type}) => {
                     let queryParams = {
                         pageIndex: params.current,
                         pageSize: params.pageSize,
-                        name: params.name,
+                        assetName: params.assetName,
                         field: field,
                         order: order
                     }

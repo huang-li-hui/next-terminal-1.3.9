@@ -111,6 +111,7 @@ const Asset = () => {
                     <Select>
                         <Select.Option value="rdp">RDP</Select.Option>
                         <Select.Option value="ssh">SSH</Select.Option>
+                        <Select.Option value="vnc">VNC</Select.Option>
                         <Select.Option value="telnet">Telnet</Select.Option>
                         <Select.Option value="kubernetes">Kubernetes</Select.Option>
                     </Select>
@@ -410,7 +411,6 @@ const Asset = () => {
                     pageIndex: params.current,
                     pageSize: params.pageSize,
                     name: params.name,
-                    type: params.type,
                     protocol: params.protocol,
                     active: params.active,
                     'tags': params.tags?.join(','),

@@ -2,6 +2,7 @@ import React, {useState} from 'react';
 import {Button, Form, Input, Layout, message, Tabs, Typography} from "antd";
 import accountApi from "../api/account";
 import Totp from "./Totp";
+import AccessToken from "./AccessToken";
 
 const {Content} = Layout;
 const {Title} = Typography;
@@ -102,9 +103,9 @@ const Info = () => {
                         </Form>
                     </Tabs.TabPane>
 
-                    {/*<Tabs.TabPane tab="授权令牌" key="token">*/}
-                    {/*    <AccessToken/>*/}
-                    {/*</Tabs.TabPane>*/}
+                    <Tabs.TabPane tab="授权令牌" key="token">
+                        <AccessToken/>
+                    </Tabs.TabPane>*/}
 
                     <Tabs.TabPane tab="两步认证" key="totp">
                         <Totp/>

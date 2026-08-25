@@ -1,5 +1,4 @@
 import request from "../common/request";
-import qs from "qs";
 
 class AccountApi {
 
@@ -12,15 +11,6 @@ class AccountApi {
 
     getUserInfo = async () => {
         let result = await request.get(`/${this.group}/info`);
-        if (result['code'] !== 1) {
-            return {};
-        }
-        return result['data'];
-    }
-
-    assetPaging = async (params) => {
-        let paramsStr = qs.stringify(params);
-        let result = await request.get(`/${this.group}/assets?${paramsStr}`);
         if (result['code'] !== 1) {
             return {};
         }

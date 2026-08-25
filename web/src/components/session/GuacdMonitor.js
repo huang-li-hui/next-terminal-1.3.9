@@ -29,7 +29,6 @@ const GuacdMonitor = () => {
 
         let scaleW = winWidth / width;
         let scaleH = winHeight / height;
-        console.log(scaleW, scaleH)
 
         let scale = Math.min(scaleW, scaleH);
         if (!scale) {
@@ -65,7 +64,6 @@ const GuacdMonitor = () => {
     };
 
     const onTunnelStateChange = (state) => {
-        console.log('onTunnelStateChange', state);
         if (state === Guacamole.Tunnel.State.CLOSED) {
             const display = document.getElementById("display");
             display.innerHTML = '';

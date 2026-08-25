@@ -106,18 +106,20 @@ const Storage = () => {
                     </a>
                 </Show>,
                 <Show menu={'storage-del'} key={'storage-del'}>
-                    <Popconfirm
-                        key={'confirm-delete'}
-                        title="您确认要删除此行吗?"
-                        onConfirm={async () => {
-                            await api.deleteById(record.id);
-                            actionRef.current.reload();
-                        }}
-                        okText="确认"
-                        cancelText="取消"
-                    >
-                        <a key='delete' disabled={record['isDefault']} className='danger'>删除</a>
-                    </Popconfirm>
+                    {record['isDefault'] ?
+                        <a key='delete' className='disabled'>删除</a> :
+                        <Popconfirm
+                            key={'confirm-delete'}
+                            title="您确认要删除此行吗?"
+                            onConfirm={async () => {
+                                await api.deleteById(record.id);
+                                actionRef.current.reload();
+                            }}
+                            okText="确认"
+                            cancelText="取消"
+                        >
+                            <a key='delete' className='danger'>删除</a>
+                        </Popconfirm>}
                 </Show>,
             ],
         },

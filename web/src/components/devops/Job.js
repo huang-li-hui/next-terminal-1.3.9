@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import './Job.css'
-import {Button, Layout, message, Popconfirm, Switch, Tag, Tooltip} from "antd";
+import {Button, Layout, message, Popconfirm, Select, Switch, Tag, Tooltip} from "antd";
 import {ProTable} from "@ant-design/pro-components";
 import jobApi from "../../api/job";
 import JobModal from "./JobModal";
@@ -42,7 +42,17 @@ const Job = () => {
             title: '状态',
             dataIndex: 'status',
             key: 'status',
-            hideInSearch: true,
+            renderFormItem: (item, {type, defaultRender, ...rest}, form) => {
+                if (type === 'form') {
+                    return null;
+                }
+                return (
+                    <Select allowClear>
+                        <Select.Option value="running">开启</Select.Option>
+                        <Select.Option value="not-running">关闭</Select.Option>
+                    </Select>
+                );
+            },
             render: (status, record, index) => {
                 return <Switch disabled={!hasMenu('job-change-status')} checkedChildren="开启" unCheckedChildren="关闭"
                                checked={status === 'running'}
@@ -197,6 +207,7 @@ const Job = () => {
                             pageIndex: params.current,
                             pageSize: params.pageSize,
                             name: params.name,
+                            status: params.status,
                             field: field,
                             order: order
                         }

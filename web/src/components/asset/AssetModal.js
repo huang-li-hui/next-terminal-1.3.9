@@ -465,8 +465,8 @@ Windows需要对远程应用程序的名称使用特殊的符号。
                 protocol === 'ssh' ?
                     <>
                         <Panel header={<Text strong>Socks 代理</Text>} key="socks">
-                            <Form.Item name='ssh-mode' noStyle>
-                                <Input hidden={true} value={'native'}/>
+                            <Form.Item name='ssh-mode' noStyle initialValue='native'>
+                                <Input hidden={true}/>
                             </Form.Item>
                             <Form.Item
                                 name="socks-proxy-enable"
@@ -783,7 +783,6 @@ Windows需要对远程应用程序的名称使用特殊的符号。
                         if (copied === true) {
                             values['id'] = undefined;
                         }
-                        console.log(values['tags'], arrays.isEmpty(values['tags']))
                         if (!arrays.isEmpty(values['tags'])) {
                             values.tags = values['tags'].join(',');
                         } else {

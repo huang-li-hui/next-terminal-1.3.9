@@ -169,6 +169,15 @@
     padding: 0 !important;
 }
 
+.disabled {
+    color: rgba(0, 0, 0, 0.25);
+    cursor: not-allowed;
+}
+
+.disabled:hover {
+    color: rgba(0, 0, 0, 0.25);
+}
+
 .danger {
     color: red;
 }

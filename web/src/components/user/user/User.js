@@ -150,10 +150,14 @@ const User = () => {
             content: '重置后用户无需二次认证即可登录系统。',
             onOk() {
                 return new Promise(async (resolve, reject) => {
-                    await api.resetTotp(selectedRowKeys.join(','));
-                    resolve();
-                    message.success("重置成功");
-                }).catch(() => console.log('Oops errors!'))
+                    if (await api.resetTotp(selectedRowKeys.join(','))) {
+                        resolve();
+                        message.success("重置成功");
+                    } else {
+                        reject();
+                        message.error("重置失败");
+                    }
+                })
             },
         });
     }
@@ -171,10 +175,14 @@ const User = () => {
                         message.warn("请输入密码");
                         return;
                     }
-                    await api.changePassword(selectedRowKeys.join(','), password);
-                    resolve();
-                    message.success("修改成功");
-                }).catch(() => console.log('Oops errors!'))
+                    if (await api.changePassword(selectedRowKeys.join(','), password)) {
+                        resolve();
+                        message.success("修改成功");
+                    } else {
+                        reject();
+                        message.error("修改失败");
+                    }
+                })
             },
         });
     }

@@ -3,6 +3,7 @@ import {Tabs} from "antd";
 import {useParams, useSearchParams} from "react-router-dom";
 import LoginPolicyInfo from "./LoginPolicyInfo";
 import LoginPolicyUser from "./LoginPolicyUser";
+import LoginPolicyUserGroup from "./LoginPolicyUserGroup";
 
 const {TabPane} = Tabs;
 
@@ -30,7 +31,7 @@ const LoginPolicyDetail = () => {
                     <LoginPolicyUser active={activeKey === 'bind-user'} loginPolicyId={loginPolicyId}/>
                 </TabPane>
                 <TabPane tab="绑定用户组" key="bind-user-group">
-                    暂未实现
+                    <LoginPolicyUserGroup active={activeKey === 'bind-user-group'} loginPolicyId={loginPolicyId}/>
                 </TabPane>
             </Tabs>
         </div>

@@ -45,6 +45,25 @@ const OfflineSession = () => {
             dataIndex: 'index',
             valueType: 'indexBorder',
             width: 48,
+        },
+        {
+            title: '已读状态',
+            dataIndex: 'reviewed',
+            key: 'reviewed',
+            hideInTable: true,
+            renderFormItem: (item, {type, defaultRender, ...rest}, form) => {
+                if (type === 'form') {
+                    return null;
+                }
+                return (
+                    <Select allowClear
+                            options={[
+                                {label: '未读', value: 'false'},
+                                {label: '已读', value: 'true'},
+                            ]}>
+                    </Select>
+                );
+            },
         }, {
             title: '来源IP',
             dataIndex: 'clientIp',
@@ -140,6 +159,24 @@ const OfflineSession = () => {
                 let disablePlayback = record['recording'] !== '1';
                 let disableCmdRecord = record['commandCount'] === 0;
                 return [
+                    <Show menu={'offline-session-reviewed'} key={'offline-session-reviewed'}>
+                        <a key='reviewed'
+                           onClick={async () => {
+                               await api.reviewed(record['id']);
+                               actionRef.current.reload();
+                           }}>
+                            标记已读
+                        </a>
+                    </Show>,
+                    <Show menu={'offline-session-unreviewed'} key={'offline-session-unreviewed'}>
+                        <a key='unreviewed'
+                           onClick={async () => {
+                               await api.unreviewed(record['id']);
+                               actionRef.current.reload();
+                           }}>
+                            标记未读
+                        </a>
+                    </Show>,
                     <Show menu={'offline-session-playback'} key={'offline-session-playback'}>
                         <Button
                             key='monitor'
@@ -210,6 +247,7 @@ const OfflineSession = () => {
                     field: field,
                     order: order,
                     status: 'disconnected',
+                    reviewed: params.reviewed,
                 }
                 let result = await api.getPaging(queryParams);
                 return {
@@ -280,6 +318,22 @@ const OfflineSession = () => {
                                 });
                             }}>
                         清空
+                    </Button>
+                </Show>,
+                <Show menu={'offline-session-reviewed-all'}>
+                    <Button key="reviewed-all"
+                            onClick={() => {
+                                Modal.confirm({
+                                    title: '您确定要将全部会话标记为已读吗?',
+                                    okText: '确定',
+                                    cancelText: '取消',
+                                    onOk: async () => {
+                                        await api.reviewedAll();
+                                        actionRef.current.reload();
+                                    }
+                                });
+                            }}>
+                        全部标记已读
                     </Button>
                 </Show>,
             ]}

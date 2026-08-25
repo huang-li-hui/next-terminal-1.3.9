@@ -35,7 +35,6 @@ const AccessGateway = () => {
             dataIndex: 'ip',
             key: 'ip',
             sorter: true,
-            hideInSearch: true
         }, {
             title: '端口',
             dataIndex: 'port',
@@ -144,6 +143,7 @@ const AccessGateway = () => {
                     pageIndex: params.current,
                     pageSize: params.pageSize,
                     name: params.name,
+                    ip: params.ip,
                     field: field,
                     order: order
                 }

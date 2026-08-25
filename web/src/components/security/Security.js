@@ -111,7 +111,7 @@ const Security = () => {
                         let queryParams = {
                             pageIndex: params.current,
                             pageSize: params.pageSize,
-                            name: params.name,
+                            ip: params.ip,
                             field: field,
                             order: order
                         }

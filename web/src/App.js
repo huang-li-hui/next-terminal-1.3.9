@@ -52,6 +52,7 @@ const Credential = React.lazy(() => import("./components/asset/Credential"));
 
 const Job = React.lazy(() => import("./components/devops/Job"));
 const LoginLog = React.lazy(() => import("./components/log-audit/LoginLog"));
+const StorageLog = React.lazy(() => import("./components/log-audit/StorageLog"));
 const Security = React.lazy(() => import("./components/security/Security"));
 const Storage = React.lazy(() => import("./components/devops/Storage"));
 
@@ -101,6 +102,7 @@ const App = () => {
                 <Route path="/online-session" element={<OnlineSession/>}/>
                 <Route path="/offline-session" element={<OfflineSession/>}/>
                 <Route path="/login-log" element={<LoginLog/>}/>
+                <Route path="/storage-log" element={<StorageLog/>}/>
                 <Route path="/info" element={<Info/>}/>
                 <Route path="/setting" element={<Setting/>}/>
                 <Route path="/job" element={<Job/>}/>

@@ -77,16 +77,16 @@ const StorageModal = ({
                                 limitSize = limitSize * 1024 * 1024 * 1024;
                                 break;
                             case 'TB':
-                                limitSize = limitSize * 1024 * 1024 * 1024 * 1024 * 1024;
+                                limitSize = limitSize * 1024 * 1024 * 1024 * 1024;
                                 break;
                             case 'EB':
-                                limitSize = limitSize * 1024 * 1024 * 1024 * 1024 * 1024 * 1024;
+                                limitSize = limitSize * 1024 * 1024 * 1024 * 1024 * 1024;
                                 break;
                             case 'ZB':
-                                limitSize = limitSize * 1024 * 1024 * 1024 * 1024 * 1024 * 1024 * 1024;
+                                limitSize = limitSize * 1024 * 1024 * 1024 * 1024 * 1024 * 1024;
                                 break;
                             case 'YB':
-                                limitSize = limitSize * 1024 * 1024 * 1024 * 1024 * 1024 * 1024 * 1024 * 1024;
+                                limitSize = limitSize * 1024 * 1024 * 1024 * 1024 * 1024 * 1024 * 1024;
                                 break;
                             default:
                                 break;

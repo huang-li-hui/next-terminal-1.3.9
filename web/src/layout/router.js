@@ -6,6 +6,7 @@ import {
     CodeOutlined,
     ControlOutlined,
     DashboardOutlined,
+    FileDoneOutlined,
     DesktopOutlined,
     DisconnectOutlined,
     HddOutlined,
@@ -82,6 +83,11 @@ export const routers = [
                 key: 'login-log',
                 label: '登录日志',
                 icon: <LoginOutlined/>,
+            },
+            {
+                key: 'storage-log',
+                label: '文件日志',
+                icon: <FileDoneOutlined/>,
             },
         ]
     },

@@ -1,11 +1,15 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
+import {Button} from 'antd';
 import {ProTable} from '@ant-design/pro-components';
 import {Link} from "react-router-dom";
 import loginPolicyApi from "../../../api/login-policy";
+import UserLoginPolicyBind from "./UserLoginPolicyBind";
 
 const actionRef = React.createRef();
 
 const UserLoginPolicy = ({active, userId}) => {
+
+    let [bindVisible, setBindVisible] = useState(false);
 
     useEffect(() => {
         if (active) {
@@ -114,8 +118,18 @@ const UserLoginPolicy = ({active, userId}) => {
                 dateFormatter="string"
                 headerTitle="用户登录策略"
                 toolBarRender={() => [
-
+                    <Button key="bind" type="primary" onClick={() => {
+                        setBindVisible(true);
+                    }}>
+                        绑定策略
+                    </Button>,
                 ]}
+            />
+
+            <UserLoginPolicyBind
+                visible={bindVisible}
+                userId={userId}
+                handleCancel={() => setBindVisible(false)}
             />
         </div>
     );

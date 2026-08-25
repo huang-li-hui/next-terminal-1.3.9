@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 
-import {Button, Layout, Modal, Popconfirm, Table, Tag, Tooltip} from "antd";
+import {Button, Layout, Modal, Popconfirm, Select, Table, Tag, Tooltip} from "antd";
 import {formatDate, isEmpty} from "../../utils/utils";
 import {ProTable} from "@ant-design/pro-components";
 import loginLogApi from "../../api/login-log";
@@ -38,14 +38,26 @@ const LoginLog = () => {
             title: '登录状态',
             dataIndex: 'state',
             key: 'state',
-            hideInSearch: true,
             render: text => {
                 if (text === '0') {
                     return <Tag color="error">失败</Tag>
                 } else {
                     return <Tag color="success">成功</Tag>
                 }
-            }
+            },
+            renderFormItem: (item, {type, defaultRender, ...rest}, form) => {
+                if (type === 'form') {
+                    return null;
+                }
+                return (
+                    <Select allowClear
+                            options={[
+                                {label: '成功', value: '1'},
+                                {label: '失败', value: '0'},
+                            ]}>
+                    </Select>
+                );
+            },
         }, {
             title: '失败原因',
             dataIndex: 'reason',
@@ -141,6 +153,7 @@ const LoginLog = () => {
                         let queryParams = {
                             pageIndex: params.current,
                             pageSize: params.pageSize,
+                            state: params.state,
                             username: params.username,
                             clientIp: params.clientIp,
                             field: field,

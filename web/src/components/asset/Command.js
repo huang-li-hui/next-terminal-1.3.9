@@ -132,6 +132,7 @@ const Command = () => {
                     pageIndex: params.current,
                     pageSize: params.pageSize,
                     name: params.name,
+                    content: params.content,
                     field: field,
                     order: order
                 }
