@@ -105,7 +105,7 @@ const Info = () => {
 
                     <Tabs.TabPane tab="授权令牌" key="token">
                         <AccessToken/>
-                    </Tabs.TabPane>*/}
+                    </Tabs.TabPane>
 
                     <Tabs.TabPane tab="两步认证" key="totp">
                         <Totp/>
