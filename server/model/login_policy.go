@@ -24,6 +24,16 @@ func (r *LoginPolicyUserRef) TableName() string {
 	return "login_policies_ref"
 }
 
+type LoginPolicyUserGroupRef struct {
+	ID            string `gorm:"primary_key,type:varchar(36)" json:"id"`
+	UserGroupId   string `gorm:"index,type:varchar(36)" json:"userGroupId"`
+	LoginPolicyId string `gorm:"index,type:varchar(36)" json:"loginPolicyId"`
+}
+
+func (r *LoginPolicyUserGroupRef) TableName() string {
+	return "login_policies_user_group_ref"
+}
+
 type TimePeriod struct {
 	ID            string `gorm:"primary_key,type:varchar(36)" json:"id"`
 	LoginPolicyId string `gorm:"index,type:varchar(36)" json:"loginPolicyId"`

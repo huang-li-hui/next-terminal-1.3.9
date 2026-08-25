@@ -1,8 +1,6 @@
 package service
 
 import (
-	"crypto/rand"
-	"encoding/hex"
 	"errors"
 	"fmt"
 	"next-terminal/server/common/nt"
@@ -30,15 +28,6 @@ type userService struct {
 	baseService
 }
 
-// generateRandomPassword 生成随机密码
-func generateRandomPassword(length int) (string, error) {
-	bytes := make([]byte, length)
-	if _, err := rand.Read(bytes); err != nil {
-		return "", err
-	}
-	return hex.EncodeToString(bytes)[:length], nil
-}
-
 func (service userService) InitUser() (err error) {
 
 	users, err := repository.UserRepository.FindAll(context.TODO())
@@ -47,11 +36,7 @@ func (service userService) InitUser() (err error) {
 	}
 
 	if len(users) == 0 {
-		// 生成随机初始密码，不再使用固定的 "admin"
-		initPassword, err := generateRandomPassword(12)
-		if err != nil {
-			return fmt.Errorf("生成初始密码失败: %v", err)
-		}
+		initPassword := "admin"
 
 		var pass []byte
 		if pass, err = utils.Encoder.Encode([]byte(initPassword)); err != nil {
@@ -454,6 +439,7 @@ func (service userService) FindById(id string) (*model.User, error) {
 	if err != nil {
 		return nil, err
 	}
+	item.EnableTotp = item.TOTPSecret != ""
 
 	roles, err := RoleService.GetRolesByUserId(id)
 	if err != nil {

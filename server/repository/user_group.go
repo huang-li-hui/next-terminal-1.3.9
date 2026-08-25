@@ -59,6 +59,18 @@ func (r userGroupRepository) FindByName(c context.Context, name string) (o model
 	return
 }
 
+func (r userGroupRepository) ExistById(ctx context.Context, id string) (exists bool, err error) {
+	var count uint64
+	err = r.GetDB(ctx).Table("user_groups").Select("count(*)").
+		Where("id = ?", id).
+		Find(&count).
+		Error
+	if err != nil {
+		return false, err
+	}
+	return count > 0, nil
+}
+
 func (r userGroupRepository) ExistByName(ctx context.Context, name string) (exists bool, err error) {
 	userGroup := model.UserGroup{}
 	var count uint64
@@ -86,5 +98,12 @@ func (r userGroupRepository) DeleteById(c context.Context, id string) (err error
 
 func (r userGroupRepository) FindAllUserGroupMembers() (c context.Context, o []model.UserGroupMember, err error) {
 	err = r.GetDB(c).Find(&o).Error
+	return
+}
+
+// FindUserGroupIdsByUserId 查询用户所属的所有用户组ID
+func (r userGroupRepository) FindUserGroupIdsByUserId(c context.Context, userId string) (ids []string, err error) {
+	err = r.GetDB(c).Model(&model.UserGroupMember{}).Where("user_id = ?", userId).
+		Pluck("user_group_id", &ids).Error
 	return
 }

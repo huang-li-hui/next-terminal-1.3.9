@@ -53,7 +53,7 @@ func setupDB() *gorm.DB {
 		&model.Storage{}, &model.Strategy{},
 		&model.AccessToken{}, &model.ShareSession{},
 		&model.Role{}, &model.RoleMenuRef{}, &model.UserRoleRef{},
-		&model.LoginPolicy{}, &model.LoginPolicyUserRef{}, &model.TimePeriod{},
+		&model.LoginPolicy{}, &model.LoginPolicyUserRef{}, &model.LoginPolicyUserGroupRef{}, &model.TimePeriod{},
 		&model.StorageLog{}, &model.Authorised{}); err != nil {
 		panic(fmt.Errorf("初始化数据库表结构异常: %v", err.Error()))
 	}

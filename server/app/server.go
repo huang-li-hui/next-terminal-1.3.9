@@ -3,6 +3,8 @@ package app
 import (
 	"io/fs"
 	"net/http"
+	// 注册 pprof handler 到 http.DefaultServeMux，供 /debug/pprof 使用
+	_ "net/http/pprof"
 	"os"
 
 	"next-terminal/server/api"
@@ -337,6 +339,10 @@ func setupRoutes() *echo.Echo {
 		loginPolicies.GET("/:id", LoginPolicyApi.GetEndpoint)
 		loginPolicies.GET("/:id/users/paging", LoginPolicyApi.GetUserPageEndpoint)
 		loginPolicies.GET("/:id/users/id", LoginPolicyApi.GetUserIdEndpoint)
+		loginPolicies.GET("/:id/user-groups/paging", LoginPolicyApi.GetUserGroupPageEndpoint)
+		loginPolicies.GET("/:id/user-groups/id", LoginPolicyApi.GetUserGroupIdEndpoint)
+		loginPolicies.POST("/:id/bind-user-group", LoginPolicyApi.BindUserGroupEndpoint)
+		loginPolicies.POST("/:id/unbind-user-group", LoginPolicyApi.UnbindUserGroupEndpoint)
 		loginPolicies.POST("", LoginPolicyApi.CreateEndpoint)
 		loginPolicies.DELETE("/:id", LoginPolicyApi.DeleteEndpoint)
 		loginPolicies.PUT("/:id", LoginPolicyApi.UpdateEndpoint)
@@ -357,6 +363,11 @@ func setupRoutes() *echo.Echo {
 	}
 
 	e.GET("/menus", RoleApi.TreeMenus, mw.Admin)
+
+	// pprof 调试入口（仅管理员），配合前端 DEBUG 菜单项
+	e.GET("/debug/pprof", echo.WrapHandler(http.DefaultServeMux), mw.Admin)
+	e.GET("/debug/pprof/*", echo.WrapHandler(http.DefaultServeMux), mw.Admin)
+	e.GET("/debug/pprof/cmdline", echo.WrapHandler(http.DefaultServeMux), mw.Admin)
 
 	return e
 }

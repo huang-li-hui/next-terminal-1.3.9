@@ -10,6 +10,7 @@ type User struct {
 	Password   string          `gorm:"type:varchar(500)" json:"password"`
 	Nickname   string          `gorm:"type:varchar(500)" json:"nickname"`
 	TOTPSecret string          `json:"-"`
+	EnableTotp bool            `gorm:"-" json:"enableTotp"`
 	Online     *bool           `json:"online"`
 	Status     string          `gorm:"type:varchar(10)" json:"status"`
 	Created    common.JsonTime `json:"created"`

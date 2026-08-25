@@ -17,7 +17,6 @@ var anonymousUrls = []string{"/login", "/static", "/favicon.ico", "/logo.svg", "
 
 var allowUrls = []urlpath.Path{
 	urlpath.New("/account/info"),
-	urlpath.New("/share-sessions/:id"),
 	urlpath.New("/sessions"),
 	urlpath.New("/sessions/:id/tunnel"),
 	urlpath.New("/sessions/:id/connect"),

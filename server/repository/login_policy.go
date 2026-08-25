@@ -60,6 +60,29 @@ func (r loginPolicyRepository) FindByUserId(c context.Context, userId string) (i
 	return
 }
 
+// FindByUserIdOrGroupIds 查询直接绑定给用户的策略，以及绑定给用户所属用户组的策略
+func (r loginPolicyRepository) FindByUserIdOrGroupIds(c context.Context, userId string, groupIds []string) (items []model.LoginPolicy, err error) {
+	m := model.LoginPolicy{}
+	db := r.GetDB(c).Table(m.TableName()).
+		Joins("left join login_policies_ref as ref on login_policies.id = ref.login_policy_id").
+		Joins("left join login_policies_user_group_ref as gref on login_policies.id = gref.login_policy_id")
+	query := "ref.user_id = ?"
+	args := []interface{}{userId}
+	if len(groupIds) > 0 {
+		placeholders := ""
+		for i := range groupIds {
+			if i > 0 {
+				placeholders += ","
+			}
+			placeholders += "?"
+			args = append(args, groupIds[i])
+		}
+		query += " or gref.user_group_id in (" + placeholders + ")"
+	}
+	err = db.Where(query, args...).Group("login_policies.id").Order("login_policies.priority desc").Find(&items).Error
+	return
+}
+
 func (r loginPolicyRepository) DeleteById(c context.Context, id string) error {
 	return r.GetDB(c).Where("id = ?", id).Delete(model.LoginPolicy{}).Error
 }

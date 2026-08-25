@@ -47,6 +47,9 @@ func (s loginPolicyService) DeleteByIds(ctx context.Context, ids []string) error
 			if err := repository.LoginPolicyUserRefRepository.DeleteByLoginPolicyId(ctx, id); err != nil {
 				return err
 			}
+			if err := repository.LoginPolicyUserGroupRefRepository.DeleteByLoginPolicyId(ctx, id); err != nil {
+				return err
+			}
 			if err := repository.TimePeriodRepository.DeleteByLoginPolicyId(ctx, id); err != nil {
 				return err
 			}
@@ -92,8 +95,12 @@ func (s loginPolicyService) FindById(ctx context.Context, id string) (*model.Log
 
 func (s loginPolicyService) Check(userId, clientIp string) error {
 	ctx := context.Background()
-	// 按照优先级倒排进行查询
-	policies, err := repository.LoginPolicyRepository.FindByUserId(ctx, userId)
+	// 同时考虑直接绑定给用户的策略以及绑定给用户所属用户组的策略
+	groupIds, err := repository.UserGroupRepository.FindUserGroupIdsByUserId(ctx, userId)
+	if err != nil {
+		return err
+	}
+	policies, err := repository.LoginPolicyRepository.FindByUserIdOrGroupIds(ctx, userId, groupIds)
 	if err != nil {
 		return err
 	}
@@ -241,6 +248,54 @@ func (s loginPolicyService) Unbind(ctx context.Context, loginPolicyId string, it
 				continue
 			}
 			if err := repository.LoginPolicyUserRefRepository.DeleteByLoginPolicyIdAndUserId(ctx, loginPolicyId, items[i].UserId); err != nil {
+				return err
+			}
+		}
+		return nil
+	})
+}
+
+// BindUserGroups 将用户组绑定到登录策略
+func (s loginPolicyService) BindUserGroups(ctx context.Context, loginPolicyId string, items []model.LoginPolicyUserGroupRef) error {
+	return s.Transaction(ctx, func(ctx context.Context) error {
+		var results []model.LoginPolicyUserGroupRef
+		for i := range items {
+			if items[i].UserGroupId == "" {
+				continue
+			}
+			exist, err := repository.UserGroupRepository.ExistById(ctx, items[i].UserGroupId)
+			if err != nil {
+				continue
+			}
+			if !exist {
+				continue
+			}
+			refId := utils.Sign([]string{items[i].UserGroupId, loginPolicyId})
+			if err := repository.LoginPolicyUserGroupRefRepository.DeleteId(ctx, refId); err != nil {
+				return err
+			}
+			results = append(results, model.LoginPolicyUserGroupRef{
+				ID:            refId,
+				UserGroupId:   items[i].UserGroupId,
+				LoginPolicyId: loginPolicyId,
+			})
+		}
+		if len(results) == 0 {
+			return nil
+		}
+
+		return repository.LoginPolicyUserGroupRefRepository.CreateInBatches(ctx, results)
+	})
+}
+
+// UnbindUserGroups 将用户组从登录策略解绑
+func (s loginPolicyService) UnbindUserGroups(ctx context.Context, loginPolicyId string, items []model.LoginPolicyUserGroupRef) error {
+	return s.Transaction(ctx, func(ctx context.Context) error {
+		for i := range items {
+			if items[i].UserGroupId == "" {
+				continue
+			}
+			if err := repository.LoginPolicyUserGroupRefRepository.DeleteByLoginPolicyIdAndUserGroupId(ctx, loginPolicyId, items[i].UserGroupId); err != nil {
 				return err
 			}
 		}

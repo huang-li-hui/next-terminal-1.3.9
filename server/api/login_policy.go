@@ -141,3 +141,61 @@ func (api LoginPolicyApi) GetUserIdEndpoint(c echo.Context) error {
 
 	return Success(c, ids)
 }
+
+func (api LoginPolicyApi) GetUserGroupPageEndpoint(c echo.Context) error {
+	id := c.Param("id")
+	pageIndex, _ := strconv.Atoi(c.QueryParam("pageIndex"))
+	pageSize, _ := strconv.Atoi(c.QueryParam("pageSize"))
+	name := c.QueryParam("name")
+
+	order := c.QueryParam("order")
+	field := c.QueryParam("field")
+
+	items, total, err := repository.LoginPolicyUserGroupRefRepository.FindUserGroupPage(context.TODO(), pageIndex, pageSize, id, name, order, field)
+	if err != nil {
+		return err
+	}
+
+	return Success(c, maps.Map{
+		"total": total,
+		"items": items,
+	})
+}
+
+func (api LoginPolicyApi) GetUserGroupIdEndpoint(c echo.Context) error {
+	id := c.Param("id")
+	refs, err := repository.LoginPolicyUserGroupRefRepository.FindByLoginPolicyId(context.Background(), id)
+	if err != nil {
+		return err
+	}
+	var ids = make([]string, 0)
+	for _, ref := range refs {
+		ids = append(ids, ref.UserGroupId)
+	}
+
+	return Success(c, ids)
+}
+
+func (api LoginPolicyApi) BindUserGroupEndpoint(c echo.Context) error {
+	var items []model.LoginPolicyUserGroupRef
+	if err := c.Bind(&items); err != nil {
+		return err
+	}
+	id := c.Param("id")
+	if err := service.LoginPolicyService.BindUserGroups(context.Background(), id, items); err != nil {
+		return err
+	}
+	return Success(c, "")
+}
+
+func (api LoginPolicyApi) UnbindUserGroupEndpoint(c echo.Context) error {
+	var items []model.LoginPolicyUserGroupRef
+	if err := c.Bind(&items); err != nil {
+		return err
+	}
+	id := c.Param("id")
+	if err := service.LoginPolicyService.UnbindUserGroups(context.Background(), id, items); err != nil {
+		return err
+	}
+	return Success(c, "")
+}
